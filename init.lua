@@ -122,5 +122,5 @@ elseif minetest.get_modpath("sfinv") ~= nil then
 	})
 end
 
-journal.register_page("journal test","test")
-minetest.after(10,journal.add_entry,"singleplayer","journal test","test entry")
+--journal.register_page("journal test","test")
+--minetest.after(10,journal.add_entry,"singleplayer","journal test","test entry")
