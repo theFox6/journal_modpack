@@ -8,7 +8,7 @@ minetest.register_on_dignode(function(pos, oldnode, digger)
 	local name = digger:get_player_name()
 	if oldnode.name == "default:tree" then
 		if not journal.playerdata_getKey(name,"journal_foundLog") then
-			journal.add_entry(name,"journal test","Today I found a log. It's nothing but a little peice of my ship I will have.")
+			journal.add_entry(name,"journal test","Today I found a log. It's nothing but a little piece for the ship that I will build.")
 			journal.playerdata_setKey(name,"journal_foundLog",true)
 		end
 	end
