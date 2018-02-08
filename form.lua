@@ -119,8 +119,10 @@ function journal.make_formspec(player,page)
 			formspec = formspec .. journal.widgets.text(-0.2,0.7,9.8,10.8, "entry", journal.entries[player][page])
 		end
 		--TODO: detect not readed entrys
-		minetest.get_player_by_name(player):hud_remove(journal.players[player].message)
-		journal.players[player].message=false
+		if journal.players[player].message~=false then
+			minetest.get_player_by_name(player):hud_remove(journal.players[player].message)
+			journal.players[player].message=false
+		end
 	end
 	formspec = formspec .. "button_exit[4,11.5;1,1;quit;exit]"
 	return formspec
