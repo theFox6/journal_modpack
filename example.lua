@@ -25,5 +25,13 @@ minetest.register_on_craft(function(itemstack, player, old_craft_grid, craft_inv
 			journal.add_entry(name,"journal test","So I have some planks, but I will need a lot more to build my ship.")
 			journal.playerdata_setKey(name,"journal_craftedPlanks",true)
 		end
+	elseif itemstack:get_name() == "boats:boat" then
+		local name = player:get_player_name()
+		if not journal.playerdata_getKey(name,"journal_craftedBoat") then
+			journal.add_entry(name,"journal test","Well I have my ship now ...")
+			journal.playerdata_setKey(name,"journal_craftedBoat",true)
+			minetest.after(10,journal.add_entry,name,"journal test","On second thoughts, I would have expected my ship to be bigger.\nMaybe out there on the open sea are some bigger ships...")
+			minetest.after(12,journal.add_entry,name,"journal test","---THE END---\nI hope you liked the epic story :P")
+		end
 	end
 end)
