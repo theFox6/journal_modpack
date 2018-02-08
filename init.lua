@@ -1,9 +1,27 @@
 journal = {
 	modpath = minetest.get_modpath("journal"),
-	players = {},
 	registered_pages = {},
+	example_enabled = true -- enable the example.lua
 }
 dofile(journal.modpath.."/form.lua")
+
+journal.players = (function()
+	local file_name = minetest.get_worldpath() .. "/journal_players"
+
+	minetest.register_on_shutdown(function()
+		local file = io.open(file_name, "w")
+		file:write(minetest.serialize(journal.players))
+		file:close()
+	end)
+
+	local file = io.open(file_name, "r")
+	if file ~= nil then
+		local data = file:read("*a")
+		file:close()
+		return minetest.deserialize(data)
+	end
+	return {}
+end) ()
 journal.entries = (function()
 	local file_name = minetest.get_worldpath() .. "/journal_entries"
 
@@ -46,7 +64,7 @@ function journal.add_entry(player,pageName,entry)
 	local page = journal.get_page_id(pageName)
 	if journal.entries[player][page]==nil or journal.entries[player][page]=="" then
 		if journal.registered_pages[page]~=nil then
-			journal.entries[player][page]=journal.registered_pages[page]
+			journal.entries[player][page]=journal.registered_pages[page].first
 		else
 			journal.entries[player][page]=""
 		end
@@ -54,7 +72,9 @@ function journal.add_entry(player,pageName,entry)
 	local current_time = math.floor(core.get_timeofday() * 1440)
 	local minutes = current_time % 60
 	local hour = (current_time - minutes) / 60
-	journal.entries[player][page]=journal.entries[player][page] .. "\nday ".. minetest.get_day_count() .. ", " .. hour .. ":" .. minutes
+	local days = core.get_day_count()
+	--print(dump(days)..","..dump(hour)..":"..dump(minutes))
+	journal.entries[player][page]=journal.entries[player][page] .. "\nday ".. days .. ", " .. hour .. ":" .. minutes
 	if entry ~= nil then
 		journal.entries[player][page]=journal.entries[player][page] .. " " .. entry
 	end
@@ -73,12 +93,24 @@ end
 minetest.register_on_joinplayer(function(player)
 	local playerName = player:get_player_name()
 
-	journal.players[playerName] = {joined=true, message=false}
+	if journal.players[playerName] == nil then
+		journal.players[playerName] = {data={}}
+	end
+	journal.players[playerName].joined=true
+	journal.players[playerName].message=false
 end)
 minetest.register_on_leaveplayer(function(player)
 	local playerName = player:get_player_name()
-	journal.players[playerName] = nil
+	journal.players[playerName].joined=false
 end)
+
+function journal.playerdata_getKey(playerName,key)
+	return journal.players[playerName].data[key]
+end
+
+function journal.playerdata_setKey(playerName,key,value)
+	journal.players[playerName].data[key] = value
+end
 
 minetest.register_on_player_receive_fields(journal.on_receive_fields)
 
@@ -122,5 +154,6 @@ elseif minetest.get_modpath("sfinv") ~= nil then
 	})
 end
 
---journal.register_page("journal test","test")
---minetest.after(10,journal.add_entry,"singleplayer","journal test","test entry")
+if journal.example_enabled then
+	dofile(journal.modpath.."/example.lua")
+end
