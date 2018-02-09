@@ -33,7 +33,7 @@ dofile(journal.modpath.."/form.lua")
 dofile(journal.modpath.."/entries.lua")
 dofile(journal.modpath.."/players.lua")
 
---enable the example.lua by removing the "--"
+--disable the example.lua by adding "--"
 dofile(journal.modpath.."/example.lua")
 
 -- Unified Inventory
