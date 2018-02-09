@@ -30,10 +30,10 @@ function journal.check_modname_prefix(name)
 	end
 end
 
-dofile(journal.modpath.."/form.lua")
-dofile(journal.modpath.."/entries.lua")
 dofile(journal.modpath.."/players.lua")
+dofile(journal.modpath.."/entries.lua")
 dofile(journal.modpath.."/triggers.lua")
+dofile(journal.modpath.."/form.lua")
 
 --disable the example.lua by adding "--"
 dofile(journal.modpath.."/example.lua")

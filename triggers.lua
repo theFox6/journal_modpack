@@ -57,7 +57,7 @@ function triggers.register_counter(name,needsTarget)
 				counter[name]=counter[name]+1
 			end
 			return counter[name]
-		end		
+		end
 	end
 end
 
