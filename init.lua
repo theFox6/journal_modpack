@@ -1,6 +1,7 @@
 journal = {
 	modpath = minetest.get_modpath("journal")
 }
+
 function journal.check_modname_prefix(name)
 	if name:sub(1,1) == ":" then
 		-- If the name starts with a colon, we can skip the modname prefix
@@ -32,6 +33,7 @@ end
 dofile(journal.modpath.."/form.lua")
 dofile(journal.modpath.."/entries.lua")
 dofile(journal.modpath.."/players.lua")
+dofile(journal.modpath.."/triggers.lua")
 
 --disable the example.lua by adding "--"
 dofile(journal.modpath.."/example.lua")
