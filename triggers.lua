@@ -19,7 +19,6 @@ triggers.count = (function()
 end) ()
 
 function triggers.register_counter(name,needsTarget)
-	--TODO: data.current_count
 	if needsTarget then
 		triggers.counters[name] = function(name,data)
 			local player = data.playerName
@@ -34,10 +33,14 @@ function triggers.register_counter(name,needsTarget)
 			if target == nil then
 				error("didn't get a target")
 			end
+			local ccount = data.current_count
+			if ccount = nil then
+				ccount = 1
+			end
 			if counter[target] == nil then
-				counter[target] = 1
+				counter[target] = ccount
 			else
-				counter[target]=counter[target]+1
+				counter[target] = counter[target] + ccount
 			end
 			return counter[target]
 		end
