@@ -17,7 +17,7 @@ journal.triggers.register_on_craft({
 		return not journal.playerdata_getKey(player,"journal:craftedPlanks")
 	end,
 	call = function(data)
-		journal.add_entry(data.playerName,"journal:test","So I have some planks, but I will need a lot more to build my ship.",true)
+		journal.add_entry(data.playerName,"journal:test","So I have crafted ".. data.count .." planks, but I will need a lot more to build my ship.",true)
 		journal.playerdata_setKey(data.playerName,"journal:craftedPlanks",true)
 	end,
 })
