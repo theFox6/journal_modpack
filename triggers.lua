@@ -34,7 +34,7 @@ function triggers.register_counter(name,needsTarget)
 				error("didn't get a target")
 			end
 			local ccount = data.current_count
-			if ccount = nil then
+			if ccount == nil then
 				ccount = 1
 			end
 			if counter[target] == nil then

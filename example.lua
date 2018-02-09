@@ -14,7 +14,7 @@ journal.triggers.register_on_dig({
 journal.triggers.register_on_craft({
 	target = "default:wood",
 	is_active = function(player)
-		return (not journal.playerdata_getKey(player,"journal:craftedPlanks")) and journal.playerdata_getKey(playerName,"journal:foundTree")
+		return (not journal.playerdata_getKey(player,"journal:craftedPlanks")) and journal.playerdata_getKey(player,"journal:foundTree")
 	end,
 	call = function(data)
 		journal.add_entry(data.playerName,"journal:test","So I have crafted ".. data.count .." planks, but I will need a lot more to build my ship.",true)
@@ -25,7 +25,7 @@ journal.triggers.register_on_craft({
 journal.triggers.register_on_craft({
 	target = "boats:boat",
 	is_active = function(player)
-		return (not journal.playerdata_getKey(player,"journal:craftedBoat"))  and journal.playerdata_getKey(playerName,"journal:craftedPlanks")
+		return (not journal.playerdata_getKey(player,"journal:craftedBoat"))  and journal.playerdata_getKey(player,"journal:craftedPlanks")
 	end,
 	call = function(data)
 		journal.add_entry(data.playerName,"journal:test","Well I have my ship now ...",true)
