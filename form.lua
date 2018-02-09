@@ -111,18 +111,15 @@ function journal.make_formspec(player,pageId)
 		formspec = formspec .. journal.widgets.journal_tabs(1) .. journal.widgets.journal_categories(pageId)
 	else
 		formspec = formspec .. journal.widgets.journal_tabs(2)
-		if (#journal.registered_pages==0 or journal.registered_pages[pageId]==nil) and page==1 then
-			formspec = formspec .. journal.widgets.text(-0.2,0.7,9.8,10.8, "entry", "no entries")
-		else
-			if journal.entries[player][pageId]==nil or journal.entries[player][pageId]=="" then
-				if journal.registered_pages[pageId]~=nil then
-					journal.entries[player][pageId]=journal.registered_pages[pageId].first
-				else
-					journal.entries[player][pageId]=""
-				end
+		--formspec = formspec .. journal.widgets.text(-0.2,0.7,9.8,10.8, "entry", "no entries")
+		if journal.entries[player][pageId]==nil or journal.entries[player][pageId]=="" then
+			if journal.registered_pages[pageId]~=nil then
+				journal.entries[player][pageId]=journal.registered_pages[pageId].first
+			else
+				journal.entries[player][pageId]=""
 			end
-			formspec = formspec .. journal.widgets.text(-0.2,0.7,9.8,10.8, "entry", journal.entries[player][pageId])
 		end
+		formspec = formspec .. journal.widgets.text(-0.2,0.7,9.8,10.8, "entry", journal.entries[player][pageId])
 		--TODO: detect not readed entrys
 		if journal.players[player].message~=false then
 			minetest.get_player_by_name(player):hud_remove(journal.players[player].message)
