@@ -85,38 +85,43 @@ end
 
 function journal.widgets.journal_categories(selected)
 	local formstring = "textlist[-0.2,0.7;9.8,10.8;journal_categorylist;"
+	local first = true
 	for id,page in pairs(journal.registered_pages) do
-		formstring = formstring .. minetest.formspec_escape(page.name) .. ","
+		if first then
+			first = false
+		else
+			formstring = formstring .. ","
+		end
+		formstring = formstring .. minetest.formspec_escape(page.name)
 	end
-	--print(formstring:slice(formstring:len()-1,1)) --TODO:remove last ","
 	if selected == nil then
 		selected = 1
 	end
 	formstring = formstring .. ";"..selected.."]"..
-	"button[0,11.5;3,1;journal_button_goto_category;Show category]"
+	"button[0,11.5;3,1;goto_category;Show category]"
 	return formstring
 end
 
-function journal.make_formspec(player,page)
+function journal.make_formspec(player,pageId)
 	if journal.entries[player]==nil then
 		journal.entries[player]={}
 	end
 	local formspec = journal.widgets.journal_formspec()
-	if page==nil then
-		formspec = formspec .. journal.widgets.journal_tabs(1) .. journal.widgets.journal_categories(page)
+	if pageId==nil then
+		formspec = formspec .. journal.widgets.journal_tabs(1) .. journal.widgets.journal_categories(pageId)
 	else
 		formspec = formspec .. journal.widgets.journal_tabs(2)
-		if (#journal.registered_pages==0 or journal.registered_pages[page]==nil) and page==1 then
+		if (#journal.registered_pages==0 or journal.registered_pages[pageId]==nil) and page==1 then
 			formspec = formspec .. journal.widgets.text(-0.2,0.7,9.8,10.8, "entry", "no entries")
 		else
-			if journal.entries[player][page]==nil or journal.entries[player][page]=="" then
-				if journal.registered_pages[page]~=nil then
-					journal.entries[player][page]=journal.registered_pages[page].first
+			if journal.entries[player][pageId]==nil or journal.entries[player][pageId]=="" then
+				if journal.registered_pages[pageId]~=nil then
+					journal.entries[player][pageId]=journal.registered_pages[pageId].first
 				else
-					journal.entries[player][page]=""
+					journal.entries[player][pageId]=""
 				end
 			end
-			formspec = formspec .. journal.widgets.text(-0.2,0.7,9.8,10.8, "entry", journal.entries[player][page])
+			formspec = formspec .. journal.widgets.text(-0.2,0.7,9.8,10.8, "entry", journal.entries[player][pageId])
 		end
 		--TODO: detect not readed entrys
 		if journal.players[player].message~=false then
@@ -145,7 +150,7 @@ function journal.on_receive_fields(player, formname, fields)
 			return true
 		elseif(tab==2) then
 			if journal.players[playername].category == nil then
-				journal.players[playername].category = 1
+				journal.players[playername].category = journal.get_page_Id(1)
 			end
 			minetest.show_formspec(playername,"journal:journal_" .. playername,journal.make_formspec(playername,journal.players[playername].category))
 			return true
@@ -155,17 +160,17 @@ function journal.on_receive_fields(player, formname, fields)
 	if fields.journal_categorylist then
 		local event = minetest.explode_textlist_event(fields["journal_categorylist"])
 		if event.type == "CHG" then
-			journal.players[playername].category = event.index
+			journal.players[playername].category = journal.get_page_Id(event.index)
 		elseif event.type == "DCL" then
-			journal.players[playername].category = event.index
+			journal.players[playername].category = journal.get_page_Id(event.index)
 			minetest.show_formspec(playername,"journal:journal_" .. playername,journal.make_formspec(playername,journal.players[playername].category))
 		end
 		return true
 	end
 
-	if fields.journal_button_goto_category then
+	if fields.goto_category then
 		if journal.players[playername].category == nil then
-			journal.players[playername].category = 1
+			journal.players[playername].category = journal.get_page_Id(1)
 		end
 		minetest.show_formspec(playername,"journal:journal_" .. playername,journal.make_formspec(playername,journal.players[playername].category))
 		return true
@@ -175,3 +180,5 @@ function journal.on_receive_fields(player, formname, fields)
 		return true
 	end
 end
+
+minetest.register_on_player_receive_fields(journal.on_receive_fields)

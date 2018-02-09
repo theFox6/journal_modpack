@@ -1,118 +1,40 @@
 journal = {
-	modpath = minetest.get_modpath("journal"),
-	registered_pages = {},
-	example_enabled = true -- enable the example.lua
+	modpath = minetest.get_modpath("journal")
 }
+function journal.check_modname_prefix(name)
+	if name:sub(1,1) == ":" then
+		-- If the name starts with a colon, we can skip the modname prefix
+		-- mechanism.
+		return name:sub(2)
+	else
+		-- Enforce that the name starts with the correct mod name.
+		local modname = minetest.get_current_modname()
+		if modname == nil then
+			modname="journal"
+		end
+		local expected_prefix = modname .. ":"
+		if name:sub(1, #expected_prefix) ~= expected_prefix then
+			error("Name " .. name .. " does not follow naming conventions: " ..
+				"\"" .. expected_prefix .. "\" or \":\" prefix required")
+		end
+
+		-- Enforce that the name only contains letters, numbers and underscores.
+		local subname = name:sub(#expected_prefix+1)
+		if subname:find("[^%w_]") then
+			error("Name " .. name .. " does not follow naming conventions: " ..
+				"contains unallowed characters")
+		end
+
+		return name
+	end
+end
+
 dofile(journal.modpath.."/form.lua")
+dofile(journal.modpath.."/entries.lua")
+dofile(journal.modpath.."/players.lua")
 
-journal.players = (function()
-	local file_name = minetest.get_worldpath() .. "/journal_players"
-
-	minetest.register_on_shutdown(function()
-		local file = io.open(file_name, "w")
-		file:write(minetest.serialize(journal.players))
-		file:close()
-	end)
-
-	local file = io.open(file_name, "r")
-	if file ~= nil then
-		local data = file:read("*a")
-		file:close()
-		return minetest.deserialize(data)
-	end
-	return {}
-end) ()
-journal.entries = (function()
-	local file_name = minetest.get_worldpath() .. "/journal_entries"
-
-	minetest.register_on_shutdown(function()
-		local file = io.open(file_name, "w")
-		file:write(minetest.serialize(journal.entries))
-		file:close()
-	end)
-
-	local file = io.open(file_name, "r")
-	if file ~= nil then
-		local data = file:read("*a")
-		file:close()
-		return minetest.deserialize(data)
-	end
-	return {}
-end) ()
-
-local page_uid = 0
-
-function journal.register_page(pageName,firstMessage)
-	page_uid = page_uid + 1
-	journal.registered_pages[page_uid] = {name=pageName,first=firstMessage}
-	return page_uid
-end
-
-function journal.get_page_id(pageName)
-	for id,page in pairs(journal.registered_pages) do
-		if page.name==pageName then
-			return id
-		end
-	end
-	return journal.register_page(pageName,"This page was not registered!")
-end
-
-function journal.add_entry(player,pageName,entry)
-	if journal.entries[player]==nil then
-		journal.entries[player]={}
-	end
-	local page = journal.get_page_id(pageName)
-	if journal.entries[player][page]==nil or journal.entries[player][page]=="" then
-		if journal.registered_pages[page]~=nil then
-			journal.entries[player][page]=journal.registered_pages[page].first
-		else
-			journal.entries[player][page]=""
-		end
-	end
-	local current_time = math.floor(core.get_timeofday() * 1440)
-	local minutes = current_time % 60
-	local hour = (current_time - minutes) / 60
-	local days = core.get_day_count()
-	--print(dump(days)..","..dump(hour)..":"..dump(minutes))
-	journal.entries[player][page]=journal.entries[player][page] .. "\nday ".. days .. ", " .. hour .. ":" .. minutes
-	if entry ~= nil then
-		journal.entries[player][page]=journal.entries[player][page] .. " " .. entry
-	end
-	--show entry notification to player
-	if journal.players[player].message==false then
-		journal.players[player].message = minetest.get_player_by_name(player):hud_add({
-			hud_elem_type = "image",
-			position = {x=1,y=0},
-			scale = {x=1,y=1},
-			text = "NewJournalEntry.png",
-			alignment = {x=-1,y=1},
-		})
-	end
-end
-
-minetest.register_on_joinplayer(function(player)
-	local playerName = player:get_player_name()
-
-	if journal.players[playerName] == nil then
-		journal.players[playerName] = {data={}}
-	end
-	journal.players[playerName].joined=true
-	journal.players[playerName].message=false
-end)
-minetest.register_on_leaveplayer(function(player)
-	local playerName = player:get_player_name()
-	journal.players[playerName].joined=false
-end)
-
-function journal.playerdata_getKey(playerName,key)
-	return journal.players[playerName].data[key]
-end
-
-function journal.playerdata_setKey(playerName,key,value)
-	journal.players[playerName].data[key] = value
-end
-
-minetest.register_on_player_receive_fields(journal.on_receive_fields)
+--enable the example.lua by removing the "--"
+dofile(journal.modpath.."/example.lua")
 
 -- Unified Inventory
 if minetest.get_modpath("unified_inventory") ~= nil then
@@ -144,16 +66,13 @@ elseif minetest.get_modpath("sfinv") ~= nil then
 		get = function(self, player, context)
 			local name = player:get_player_name()
 			minetest.show_formspec(name,"journal:journal_" .. name,journal.make_formspec(name))
-			return sfinv.make_formspec(player, context, "button[2.5,3;3,1;journal_button_goto_category;open journal]", false)
+			--TODO: single button specially for opening
+			return sfinv.make_formspec(player, context, "button[2.5,3;3,1;goto_category;open journal]", false)
 		end,
 		on_player_receive_fields = function(self, player, context, fields)
 			local name = player:get_player_name()
-			--TODO: handle sfinv events here
+			--TODO: only handle the button here
 			return journal.on_receive_fields(player, "journal:journal_"..name, fields)
 		end
 	})
-end
-
-if journal.example_enabled then
-	dofile(journal.modpath.."/example.lua")
 end
