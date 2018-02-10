@@ -35,8 +35,8 @@ dofile(journal.modpath.."/entries.lua")
 dofile(journal.modpath.."/triggers.lua")
 dofile(journal.modpath.."/form.lua")
 
---disable the example.lua by adding "--"
-dofile(journal.modpath.."/example.lua")
+--enable the example.lua by removing "--"
+--dofile(journal.modpath.."/example.lua")
 
 -- Unified Inventory
 if minetest.get_modpath("unified_inventory") ~= nil then
