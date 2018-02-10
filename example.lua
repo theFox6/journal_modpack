@@ -6,10 +6,16 @@ journal.triggers.register_on_dig({
 		return not journal.playerdata_getKey(playerName,"journal:foundTree")
 	end,
 	call = function(data)
-		journal.add_entry(data.playerName,"journal:test","Today I found a log. It's nothing but a little piece for the ship that I will build.",true)
+		local tool = data.tool
+		if tool == "" then
+			tool = "my hand"
+		end
+		journal.add_entry(data.playerName,"journal:test","Today I chopped some wood using:"..tool..". It's nothing but a little piece for the ship that I will build.",true)
 		journal.playerdata_setKey(data.playerName,"journal:foundTree",true)
 	end,
 })
+
+journal.triggers.register_counter("journal:craftedPlanksCount","craft","default:wood",false)
 
 journal.triggers.register_on_craft({
 	target = "default:wood",
@@ -17,7 +23,8 @@ journal.triggers.register_on_craft({
 		return (not journal.playerdata_getKey(player,"journal:craftedPlanks")) and journal.playerdata_getKey(player,"journal:foundTree")
 	end,
 	call = function(data)
-		journal.add_entry(data.playerName,"journal:test","So I have crafted ".. data.count .." planks, but I will need a lot more to build my ship.",true)
+		local count = journal.triggers.get_count("journal:craftedPlanksCount",data.playerName)
+		journal.add_entry(data.playerName,"journal:test","So I have crafted ".. count .." planks, but I will need a lot more to build my ship.",true)
 		journal.playerdata_setKey(data.playerName,"journal:craftedPlanks",true)
 	end,
 })

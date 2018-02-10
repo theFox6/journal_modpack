@@ -5,6 +5,9 @@ triggers.count = (function()
 
 	minetest.register_on_shutdown(function()
 		local file = io.open(file_name, "w")
+		for id,counter in pairs(journal.triggers.counters) do
+			counter:save()
+		end
 		file:write(minetest.serialize(journal.triggers.count))
 		file:close()
 	end)
@@ -18,70 +21,52 @@ triggers.count = (function()
 	return {}
 end) ()
 
-function triggers.register_counter(name,needsTarget)
-	if needsTarget then
-		triggers.counters[name] = function(name,data)
+function triggers.register_counter(id,trigger,target,tool)
+	triggers.counters[journal.check_modname_prefix(id)] = {
+		id = id,
+		trigger = trigger,
+		target = target,
+		tool = tool,
+		value = triggers.count[id] or 0,
+		count = function(self,data)
 			local player = data.playerName
-			if triggers.count[player] == nil then
-				triggers.count[player]={}
+			local ccount = 1
+
+			if self.target~=false and self.target~=nil then
+				--get current count
+				if data.current_count ~= nil then
+					ccount = data.current_count
+				end
 			end
-			if triggers.count[player][name] == nil then
-				triggers.count[player][name] = {}
+
+			self.value = self.value + ccount
+		end,
+		get_count = function(self,playerName)
+			return self.value[playerName]
+		end,
+		save = function(self)
+			triggers.count[self.id]=self.value
+		end,
+		check = function(self,data)
+			if self.trigger ~= data.trigger and self.trigger then
+				return false
 			end
-			local counter = triggers.count[player][name]
-			local target = data.target
-			if target == nil then
-				error("didn't get a target")
+			if self.target ~= data.target and self.target then
+				return false
 			end
-			local ccount = data.current_count
-			if ccount == nil then
-				ccount = 1
+			if self.tool ~= data.tool and self.tool then
+				return false
 			end
-			if counter[target] == nil then
-				counter[target] = ccount
-			else
-				counter[target] = counter[target] + ccount
-			end
-			return counter[target]
-		end
-	else
-		triggers.counters[name] = function(name,data)
-			local player = data.playerName
-			if triggers.count[player] == nil then
-				triggers.count[player]={}
-			end
-			local counter = triggers.count[player]
-			if counter[name] == nil then
-				counter[name] = 1
-			else
-				counter[name]=counter[name]+1
-			end
-			return counter[name]
-		end
-	end
+			return true
+		end,
+	}
 end
 
-function triggers.get_count(name,data)
-	local player = data.playerName
-	if triggers.count[player] == nil then
-		return 0
-	end
-	local counter = triggers.count[player]
-	if counter[name] == nil then
-		return 0
-	end
-	counter = triggers.count[player][name]
-	if type(counter) == "table" then
-		if counter[data.target] == nil then
-			return 0
-		end
-		return counter[data.target]
-	else
-		return counter
-	end
+function triggers.get_count(id,playerName)
+	return triggers.counters[id]:get_count(playerName)
 end
 
-function triggers.register_trigger(name,hasTarget)
+function triggers.register_trigger(name)
 	triggers.on[name] = {}
 	triggers['register_on_'..name] = function(def)
 		local nDef = {}
@@ -116,22 +101,36 @@ function triggers.register_trigger(name,hasTarget)
 			else
 				error("Trying to register a trigger function with target string of type:"..type(def.target))
 			end
+			-- tool
+			if def.tool == nil then
+				nDef.tool = false
+			elseif def.tool == false then
+				nDef.tool = false
+			elseif type(def.tool) == "string" then
+				nDef.tool = def.tool
+			else
+				error("Trying to register a trigger function with tool string of type:"..type(def.tool))
+			end
 		else
 			error("Trying to register a trigger function of type:"..type(def))
 		end
 		table.insert(triggers.on[name], nDef)
 	end
-	if type(hasTarget)~="boolean" then
-		error("hasTarget should be boolean")
-	end
-	triggers.register_counter(name,hasTarget)
 end
 
 function triggers.run_callbacks(trigger, data)
 	if data.playerName == nil then
 		error("didn't get a playerName")
 	end
-	data.count = triggers.counters[trigger](trigger,data)
+	if trigger == nil then
+		error("didn't get a trigger")
+	end
+	data.trigger = trigger
+	for id,counter in pairs(triggers.counters) do
+		if counter:check(data) then
+			counter:count(data)
+		end
+	end
 	for id,entry in pairs(triggers.on[trigger]) do
 		local active = entry.is_active(data.playerName)
 		if active == true then
@@ -155,7 +154,8 @@ minetest.register_on_dignode(function(pos, oldnode, digger)
 
 	local data = {
 		target = oldnode.name,
-		playerName = name
+		playerName = name,
+		tool = digger:get_wielded_item():get_name(),
 	}
 
 	triggers.run_callbacks("dig", data)
