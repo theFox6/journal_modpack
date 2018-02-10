@@ -27,7 +27,7 @@ function triggers.register_counter(id,trigger,target,tool)
 		trigger = trigger,
 		target = target,
 		tool = tool,
-		value = triggers.count[id] or 0,
+		value = triggers.count[id] or {},
 		count = function(self,data)
 			local player = data.playerName
 			local ccount = 1
@@ -39,7 +39,11 @@ function triggers.register_counter(id,trigger,target,tool)
 				end
 			end
 
-			self.value = self.value + ccount
+			if self.value[player] == nil then
+				self.value[player] = ccount
+			else
+				self.value[player] = self.value[player] + ccount
+			end
 		end,
 		get_count = function(self,playerName)
 			return self.value[playerName]
@@ -141,7 +145,7 @@ function triggers.run_callbacks(trigger, data)
 	end
 end
 
-triggers.register_trigger("dig",true)
+triggers.register_trigger("dig")
 minetest.register_on_dignode(function(pos, oldnode, digger)
 	if not digger or not pos or not oldnode then
 		return
@@ -168,7 +172,7 @@ minetest.register_on_dignode(function(pos, oldnode, digger)
 	triggers.run_callbacks("dig", data)
 end)
 
-triggers.register_trigger("place",true)
+triggers.register_trigger("place")
 minetest.register_on_placenode(function(pos, node, placer)
 	if not placer or not pos or not node then
 		return
@@ -187,7 +191,7 @@ minetest.register_on_placenode(function(pos, node, placer)
 	triggers.run_callbacks("place", data)
 end)
 
-triggers.register_trigger("eat",true)
+triggers.register_trigger("eat")
 minetest.register_on_item_eat(function(hp_change, replace_with_item, itemstack, user, pointed_thing)
 	if not user or not itemstack then
 		return
@@ -207,7 +211,7 @@ minetest.register_on_item_eat(function(hp_change, replace_with_item, itemstack, 
 	triggers.run_callbacks("eat", data)
 end)
 
-triggers.register_trigger("craft",true)
+triggers.register_trigger("craft")
 minetest.register_on_craft(function(itemstack, player, old_craft_grid, craft_inv)
 	if not player or not itemstack then
 		return
@@ -227,7 +231,7 @@ minetest.register_on_craft(function(itemstack, player, old_craft_grid, craft_inv
 	triggers.run_callbacks("craft", data)
 end)
 
-triggers.register_trigger("die",false)
+triggers.register_trigger("die")
 minetest.register_on_dieplayer(function(player)
 	if not player then
 		return
@@ -245,7 +249,7 @@ minetest.register_on_dieplayer(function(player)
 	triggers.run_callbacks("die", data)
 end)
 
-triggers.register_trigger("join",false)
+triggers.register_trigger("join")
 minetest.register_on_joinplayer(function(player)
 	if not player then
 		return
@@ -263,7 +267,7 @@ minetest.register_on_joinplayer(function(player)
 	triggers.run_callbacks("join", data)
 end)
 
-triggers.register_trigger("chat",true)
+triggers.register_trigger("chat")
 minetest.register_on_chat_message(function(name, message)
 	if not name then
 		return
@@ -281,6 +285,46 @@ minetest.register_on_chat_message(function(name, message)
 	end
 
 	triggers.run_callbacks("chat", data)
+end)
+
+triggers.register_trigger("punchnode")
+minetest.register_on_punchnode(function(pos,node,puncher,pointed_thing)
+	if not puncher or not pos or not node then
+		return
+	end
+	
+	local name = puncher:get_player_name()
+	if not name or name == "" then
+		return
+	end
+
+	local data = {
+		target = node.name,
+		playerName = name,
+		tool = puncher:get_wielded_item():get_name(),
+	}
+
+	triggers.run_callbacks("punchnode", data)
+end)
+
+triggers.register_trigger("punchplayer")
+minetest.register_on_punchplayer(function(victim,puncher,dtime,punch,dist)
+	if not puncher then
+		return
+	end
+	
+	local name = puncher:get_player_name()
+	if not name or name == "" then
+		return
+	end
+
+	local data = {
+		--target = victim:get_player_name(),
+		playerName = name,
+		tool = puncher:get_wielded_item():get_name(),
+	}
+
+	triggers.run_callbacks("punchplayer", data)
 end)
 
 -- write to journal
