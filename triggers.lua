@@ -158,6 +158,13 @@ minetest.register_on_dignode(function(pos, oldnode, digger)
 		tool = digger:get_wielded_item():get_name(),
 	}
 
+	--[[local node_drops = minetest.get_node_drops(oldnode.name, "")
+	for _, item in pairs(node_drops) do
+		if digger:get_wielded_item():get_name() == item:get_name() then
+			data.tool = ""
+		end
+	end--]]
+
 	triggers.run_callbacks("dig", data)
 end)
 
