@@ -66,14 +66,20 @@ function journal.add_entry(player,pageId,entry,timestamp)
 	if entry ~= nil then
 		journal.entries[player][page]=journal.entries[player][page] .. " " .. entry
 	end
-	--show entry notification to player
-	if journal.players[player].message==false then
-		journal.players[player].message = minetest.get_player_by_name(player):hud_add({
-			hud_elem_type = "image",
-			position = {x=1,y=0},
-			scale = {x=1,y=1},
-			text = "NewJournalEntry.png",
-			alignment = {x=-1,y=1},
-		})
+
+	if journal.players[player].reading == page then
+		--reload page
+		minetest.show_formspec(playername,"journal:journal_" .. playername,journal.make_formspec(playername,page))
+	else
+		--show entry notification to player
+		if journal.players[player].message==false then
+			journal.players[player].message = minetest.get_player_by_name(player):hud_add({
+				hud_elem_type = "image",
+				position = {x=1,y=0},
+				scale = {x=1,y=1},
+				text = "NewJournalEntry.png",
+				alignment = {x=-1,y=1},
+			})
+		end
 	end
 end

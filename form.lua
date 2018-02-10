@@ -109,6 +109,7 @@ function journal.make_formspec(player,pageId)
 	local formspec = journal.widgets.journal_formspec()
 	if pageId==nil then
 		formspec = formspec .. journal.widgets.journal_tabs(1) .. journal.widgets.journal_categories(pageId)
+		journal.players[player].reading = false
 	else
 		formspec = formspec .. journal.widgets.journal_tabs(2)
 		--formspec = formspec .. journal.widgets.text(-0.2,0.7,9.8,10.8, "entry", "no entries")
@@ -124,7 +125,9 @@ function journal.make_formspec(player,pageId)
 		if journal.players[player].message~=false then
 			minetest.get_player_by_name(player):hud_remove(journal.players[player].message)
 			journal.players[player].message=false
-		end
+		end		
+
+		journal.players[player].reading = pageId
 	end
 	formspec = formspec .. "button_exit[4,11.5;1,1;quit;exit]"
 	return formspec
@@ -174,6 +177,7 @@ function journal.on_receive_fields(player, formname, fields)
 	end
 
 	if fields.quit then
+		journal.players[player].reading = false
 		return true
 	end
 end

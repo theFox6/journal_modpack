@@ -32,6 +32,7 @@ minetest.register_on_joinplayer(function(player)
 	end
 	journal.players[playerName].joined=true
 	journal.players[playerName].message=false
+	journal.players[playerName].reading=false
 end)
 
 minetest.register_on_leaveplayer(function(player)
