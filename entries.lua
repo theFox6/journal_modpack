@@ -69,7 +69,7 @@ function journal.add_entry(player,pageId,entry,timestamp)
 
 	if journal.players[player].reading == page then
 		--reload page
-		minetest.show_formspec(playername,"journal:journal_" .. playername,journal.make_formspec(playername,page))
+		minetest.show_formspec(player,"journal:journal_" .. player,journal.make_formspec(player,page))
 	else
 		--show entry notification to player
 		if journal.players[player].message==false then

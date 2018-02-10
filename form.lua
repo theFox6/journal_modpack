@@ -177,7 +177,7 @@ function journal.on_receive_fields(player, formname, fields)
 	end
 
 	if fields.quit then
-		journal.players[player].reading = false
+		journal.players[playername].reading = false
 		return true
 	end
 end
