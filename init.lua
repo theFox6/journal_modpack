@@ -1,3 +1,10 @@
+local init = os.clock()
+if minetest.settings:get_bool("log_mods") then
+  minetest.log("action", "[MOD] "..minetest.get_current_modname()..": loading")
+else
+  print("[MOD] "..minetest.get_current_modname()..": loading")
+end
+
 journal = {
 	modpath = minetest.get_modpath("journal")
 }
@@ -77,4 +84,12 @@ elseif minetest.get_modpath("sfinv") ~= nil then
 			return journal.on_receive_fields(player, "journal:journal_"..name, fields)
 		end
 	})
+end
+
+--ready
+local time_to_load= os.clock() - init
+if minetest.settings:get_bool("log_mods") then
+  minetest.log("action", string.format("[MOD] "..minetest.get_current_modname()..": loaded in %.4f s", time_to_load))
+else
+  print(string.format("[MOD] "..minetest.get_current_modname()..": loaded in %.4f s", time_to_load))
 end
