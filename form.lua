@@ -3,43 +3,11 @@ journal.widgets={}
 -- Maximum characters per line in the text widget
 local TEXT_LINELENGTH = 80
 
--- Inserts line breaks into a single paragraph and collapses all whitespace (including newlines)
--- into spaces
-local linebreaker_single = function(text, linelength)
-	if linelength == nil then
-		linelength = TEXT_LINELENGTH
-	end
-	local remain = linelength
-	local res = {}
-	local line = {}
-	local split = function(s)
-		local res = {}
-		for w in string.gmatch(s, "%S+") do
-			res[#res+1] = w
-		end
-		return res
-	end
-
-	for _, word in ipairs(split(text)) do
-		if string.len(word) + 1 > remain then
-			table.insert(res, table.concat(line, " "))
-			line = { word }
-			remain = linelength - string.len(word)
-		else
-			table.insert(line, word)
-			remain = remain - (string.len(word) + 1)
-		end
-	end
-
-	table.insert(res, table.concat(line, " "))
-	return table.concat(res, "\n")
-end
-
 -- Inserts automatic line breaks into an entire text and preserves existing newlines
 local linebreaker = function(text, linelength)
 	local out = ""
 	for s in string.gmatch(text, "([^\n]*)") do
-		local l = linebreaker_single(s, linelength)
+		local l = minetest.wrap_text(s, linelength)
 		out = out .. l
 		if(string.len(l) == 0) then
 			out = out .. "\n"
