@@ -37,7 +37,8 @@ journal.triggers.register_on_craft({
 	call = function(data)
 		journal.add_entry(data.playerName,"journal:test","Well I have my ship now ...",true)
 		minetest.after(10,journal.add_entry,data.playerName,"journal:test",
-			"On second thoughts, I would have expected my ship to be bigger.\nMaybe out there on the open sea are some bigger ships...",true)
+			"On second thoughts, I would have expected my ship to be bigger.\n"..
+			"Maybe out there on the open sea are some bigger ships...",true)
 		minetest.after(15,journal.add_entry,data.playerName,"journal:test",
 			"---THE END---\nI hope you liked the epic story :P",false)
 		journal.playerdata_setKey(data.playerName,"journal:craftedBoat",true)

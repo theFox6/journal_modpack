@@ -192,7 +192,8 @@ minetest.register_on_placenode(function(pos, node, placer)
 end)
 
 triggers.register_trigger("eat")
-minetest.register_on_item_eat(function(_, _, itemstack, user) --hp_change, replace_with_item, itemstack, user, pointed_thing
+--hp_change, replace_with_item, itemstack, user, pointed_thing
+minetest.register_on_item_eat(function(_, _, itemstack, user)
 	if not user or not itemstack then
 		return
 	end
