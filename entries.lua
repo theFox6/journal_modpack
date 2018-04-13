@@ -23,7 +23,7 @@ end
 
 function journal.get_page_Id(pageIndex)
 	local i = 0
-	for id,page in pairs(journal.registered_pages) do
+	for id,_ in pairs(journal.registered_pages) do
 		i = i + 1
 		if i==pageIndex then
 			return id
@@ -56,10 +56,10 @@ function journal.add_entry(player,pageId,entry,timestamp)
 	end
 	journal.entries[player][page]=journal.entries[player][page] .. "\n"
 	if timestamp == true then
-		local current_time = math.floor(core.get_timeofday() * 1440)
+		local current_time = math.floor(minetest.get_timeofday() * 1440)
 		local minutes = current_time % 60
 		local hour = (current_time - minutes) / 60
-		local days = core.get_day_count()
+		local days = minetest.get_day_count()
 		--print(dump(days)..","..dump(hour)..":"..dump(minutes))
 		journal.entries[player][page]=journal.entries[player][page] .. "day ".. days .. ", " .. hour .. ":" .. minutes
 	end

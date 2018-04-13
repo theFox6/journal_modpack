@@ -5,7 +5,7 @@ triggers.count = (function()
 
 	minetest.register_on_shutdown(function()
 		local file = io.open(file_name, "w")
-		for id,counter in pairs(journal.triggers.counters) do
+		for _,counter in pairs(journal.triggers.counters) do
 			counter:save()
 		end
 		file:write(minetest.serialize(journal.triggers.count))
@@ -130,12 +130,12 @@ function triggers.run_callbacks(trigger, data)
 		error("didn't get a trigger")
 	end
 	data.trigger = trigger
-	for id,counter in pairs(triggers.counters) do
+	for _,counter in pairs(triggers.counters) do
 		if counter:check(data) then
 			counter:count(data)
 		end
 	end
-	for id,entry in pairs(triggers.on[trigger]) do
+	for _,entry in pairs(triggers.on[trigger]) do
 		local active = entry.is_active(data.playerName)
 		if active == true then
 			if entry.target == false or entry.target == data.target then
@@ -150,7 +150,7 @@ minetest.register_on_dignode(function(pos, oldnode, digger)
 	if not digger or not pos or not oldnode then
 		return
 	end
-	
+
 	local name = digger:get_player_name()
 	if not name or name == "" then
 		return
@@ -192,7 +192,7 @@ minetest.register_on_placenode(function(pos, node, placer)
 end)
 
 triggers.register_trigger("eat")
-minetest.register_on_item_eat(function(hp_change, replace_with_item, itemstack, user, pointed_thing)
+minetest.register_on_item_eat(function(_, _, itemstack, user) --hp_change, replace_with_item, itemstack, user, pointed_thing
 	if not user or not itemstack then
 		return
 	end
@@ -212,7 +212,7 @@ minetest.register_on_item_eat(function(hp_change, replace_with_item, itemstack, 
 end)
 
 triggers.register_trigger("craft")
-minetest.register_on_craft(function(itemstack, player, old_craft_grid, craft_inv)
+minetest.register_on_craft(function(itemstack, player) --itemstack, player, old_craft_grid, craft_inv
 	if not player or not itemstack then
 		return
 	end
@@ -288,11 +288,11 @@ minetest.register_on_chat_message(function(name, message)
 end)
 
 triggers.register_trigger("punchnode")
-minetest.register_on_punchnode(function(pos,node,puncher,pointed_thing)
+minetest.register_on_punchnode(function(pos,node,puncher)
 	if not puncher or not pos or not node then
 		return
 	end
-	
+
 	local name = puncher:get_player_name()
 	if not name or name == "" then
 		return
@@ -308,11 +308,11 @@ minetest.register_on_punchnode(function(pos,node,puncher,pointed_thing)
 end)
 
 triggers.register_trigger("punchplayer")
-minetest.register_on_punchplayer(function(victim,puncher,dtime,punch,dist)
+minetest.register_on_punchplayer(function(_,puncher) --victim,puncher,dtime,punch,dist
 	if not puncher then
 		return
 	end
-	
+
 	local name = puncher:get_player_name()
 	if not name or name == "" then
 		return

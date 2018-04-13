@@ -37,7 +37,8 @@ journal.widgets.text = function(x, y, width, height, widget_id, data)
 	-- Currently, all of this had to be hacked into this script manually by using/abusing the table widget
 	local formstring = "tablecolumns[text]"..
 	"tableoptions[color=#000000ff;background=#00000000;border=false;highlight=#00000000;highlight_text=#000000ff]"..
-	"table["..tostring(x)..","..tostring(y)..";"..tostring(width)..","..tostring(height)..";"..widget_id..";"..text_for_textlist(data, linelength).."]"
+	"table["..tostring(x)..","..tostring(y)..";"..tostring(width)..","..tostring(height)..
+		";"..widget_id..";"..text_for_textlist(data, linelength).."]"
 	return formstring
 end
 
@@ -54,7 +55,7 @@ end
 function journal.widgets.journal_categories(selected)
 	local formstring = "textlist[-0.2,0.7;9.8,10.8;journal_categorylist;"
 	local first = true
-	for id,page in pairs(journal.registered_pages) do
+	for _,page in pairs(journal.registered_pages) do
 		if first then
 			first = false
 		else
@@ -93,7 +94,7 @@ function journal.make_formspec(player,pageId)
 		if journal.players[player].message~=false then
 			minetest.get_player_by_name(player):hud_remove(journal.players[player].message)
 			journal.players[player].message=false
-		end		
+		end
 
 		journal.players[player].reading = pageId
 	end
@@ -111,8 +112,6 @@ function journal.on_receive_fields(player, formname, fields)
 	--process clicks on the tab header
 	if fields.journal_header ~= nil then
 		local tab = tonumber(fields.journal_header)
-		local formspec, subformname, contents
-		local cid, eid
 		if(tab==1) then
 			minetest.show_formspec(playername,"journal:journal_" .. playername,journal.make_formspec(playername))
 			return true
@@ -120,7 +119,8 @@ function journal.on_receive_fields(player, formname, fields)
 			if journal.players[playername].category == nil then
 				journal.players[playername].category = journal.get_page_Id(1)
 			end
-			minetest.show_formspec(playername,"journal:journal_" .. playername,journal.make_formspec(playername,journal.players[playername].category))
+			minetest.show_formspec(playername,"journal:journal_" .. playername,
+				journal.make_formspec(playername,journal.players[playername].category))
 			return true
 		end
 	end
@@ -131,7 +131,8 @@ function journal.on_receive_fields(player, formname, fields)
 			journal.players[playername].category = journal.get_page_Id(event.index)
 		elseif event.type == "DCL" then
 			journal.players[playername].category = journal.get_page_Id(event.index)
-			minetest.show_formspec(playername,"journal:journal_" .. playername,journal.make_formspec(playername,journal.players[playername].category))
+			minetest.show_formspec(playername,"journal:journal_" .. playername,
+				journal.make_formspec(playername,journal.players[playername].category))
 		end
 		return true
 	end
@@ -140,7 +141,8 @@ function journal.on_receive_fields(player, formname, fields)
 		if journal.players[playername].category == nil then
 			journal.players[playername].category = journal.get_page_Id(1)
 		end
-		minetest.show_formspec(playername,"journal:journal_" .. playername,journal.make_formspec(playername,journal.players[playername].category))
+		minetest.show_formspec(playername,"journal:journal_" .. playername,
+			journal.make_formspec(playername,journal.players[playername].category))
 		return true
 	end
 

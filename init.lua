@@ -72,13 +72,13 @@ if minetest.get_modpath("sfinv_buttons") ~= nil then
 elseif minetest.get_modpath("sfinv") ~= nil then
 	sfinv.register_page("journal:journal", {
 		title = "journal",
-		get = function(self, player, context)
+		get = function(_, player, context)
 			local name = player:get_player_name()
 			minetest.show_formspec(name,"journal:journal_" .. name,journal.make_formspec(name))
 			--TODO: single button specially for opening
 			return sfinv.make_formspec(player, context, "button[2.5,3;3,1;goto_category;open journal]", false)
 		end,
-		on_player_receive_fields = function(self, player, context, fields)
+		on_player_receive_fields = function(_, player, _, fields)
 			local name = player:get_player_name()
 			--TODO: only handle the button here
 			return journal.on_receive_fields(player, "journal:journal_"..name, fields)
