@@ -18,8 +18,10 @@ journal.entries = (function()
 end) ()
 
 function journal.register_page(pageId,pageName,firstMessage)
-	journal.registered_pages[journal.check_modname_prefix(pageId)] = {name=pageName,first=firstMessage}
+	journal.registered_pages[journal.check_modname_prefix(pageId)] = {name=pageName,first=firstMessage or ""}
 end
+
+journal.register_page("journal:personal_notes","personal notes")
 
 function journal.get_page_Id(pageIndex)
 	local i = 0

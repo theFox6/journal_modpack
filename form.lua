@@ -22,6 +22,7 @@ end
 
 -- Inserts text suitable for a textlist (including automatic word-wrap)
 local text_for_textlist = function(text, linelength)
+	if text == nil then return "" end
 	text = linebreaker(text, linelength)
 	text = minetest.formspec_escape(text)
 	text = string.gsub(text, "\n", ",")
@@ -96,6 +97,13 @@ function journal.make_formspec(player,pageId)
 			journal.players[player].message=false
 		end
 
+		if pageId=="journal:personal_notes" then
+			formspec = formspec ..
+				"box[-0.1,10.9;8.6,0.65;#000]" ..
+				"field[0.2,11.1;8.8,1;note;;]" ..
+				"button[8.8,10.8;1,1;write;write]"
+		end
+
 		journal.players[player].reading = pageId
 	end
 	formspec = formspec .. "button_exit[4,11.5;1,1;quit;exit]"
@@ -144,6 +152,10 @@ function journal.on_receive_fields(player, formname, fields)
 		minetest.show_formspec(playername,"journal:journal_" .. playername,
 			journal.make_formspec(playername,journal.players[playername].category))
 		return true
+	end
+
+	if fields.write then
+		journal.add_entry(playername,"journal:personal_notes",fields.note,true)
 	end
 
 	if fields.quit then
