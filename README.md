@@ -3,3 +3,4 @@ a minetest mod that adds a journal  [![Build Status](https://travis-ci.org/theFo
 
 It's a book that can be accessed from the inventory.  
 The journal can be used for adding story to minetest.  
+You can also write your own notes into it ingame.  
