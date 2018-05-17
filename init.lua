@@ -5,9 +5,8 @@ else
   print("[MOD] "..minetest.get_current_modname()..": loading")
 end
 
-journal = {
-	modpath = minetest.get_modpath("journal")
-}
+rawset(_G, "journal", {})
+journal.modpath = minetest.get_modpath("journal")
 
 function journal.check_modname_prefix(name)
 	if name:sub(1,1) == ":" then
