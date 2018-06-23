@@ -1,0 +1,1 @@
+adds rightclick and pickup triggers for journal
