@@ -1,4 +1,4 @@
-triggers.register_trigger("rightclick")
+journal.triggers.register_trigger("rightclick")
 local rightclickfuncs = {}
 
 local function handle_rightclick(pos, node, clicker, itemstack, pointed_thing)
@@ -21,7 +21,7 @@ local function handle_rightclick(pos, node, clicker, itemstack, pointed_thing)
 		tool = puncher:get_wielded_item():get_name(),
 	}
 
-	triggers.run_callbacks("rightclick", data)
+	journal.triggers.run_callbacks("rightclick", data)
 end
 
 minetest.after(3, function()
@@ -33,7 +33,7 @@ minetest.after(3, function()
 	end
 end)
 
-triggers.register_trigger("pickup")
+journal.triggers.register_trigger("pickup")
 local old_punch = minetest.registered_entities["__builtin:item"].on_punch
 minetest.registered_entities["__builtin:item"].on_punch = function(self, hitter)
 	old_punch(self, hitter)
@@ -53,5 +53,5 @@ minetest.registered_entities["__builtin:item"].on_punch = function(self, hitter)
 		--tool = hitter:get_wielded_item():get_name(),
 	}
 
-	triggers.run_callbacks("pickup", data)
+	journal.triggers.run_callbacks("pickup", data)
 end
