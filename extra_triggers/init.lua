@@ -1,4 +1,3 @@
---[[FIXME
 journal.triggers.register_trigger("rightclick")
 local rightclickfuncs = {}
 
@@ -26,12 +25,14 @@ end
 
 minetest.after(3, function()
 	for name, def in pairs(minetest.registered_items) do
-		if def.on_rightclick and def.on_rightclick~=journal.triggers.handle_rightclick then
+		if def.on_rightclick then
 			rightclickfuncs[name] = def.on_rightclick
-			minetest.override_item(name,{on_rightclick=journal.triggers.handle_rightclick})
 		end
 	end
-end)]]
+	for name, _ in pairs(rightclickfuncs) do
+		minetest.override_item(name,{on_rightclick=journal.triggers.handle_rightclick})
+	end
+end)
 
 journal.triggers.register_trigger("pickup")
 local old_punch = minetest.registered_entities["__builtin:item"].on_punch
