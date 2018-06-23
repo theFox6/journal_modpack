@@ -36,7 +36,7 @@ end)
 
 journal.triggers.register_trigger("pickup")
 local old_punch = minetest.registered_entities["__builtin:item"].on_punch
-minetest.registered_entities["__builtin:item"].on_punch = function(self, hitter)
+rawset(minetest.registered_entities["__builtin:item"], "on_punch", function(self, hitter)
 	old_punch(self, hitter)
 	if not hitter or not self then
 		return
@@ -55,4 +55,4 @@ minetest.registered_entities["__builtin:item"].on_punch = function(self, hitter)
 
 	journal.triggers.run_callbacks("pickup", data)
 	return
-end
+end)
