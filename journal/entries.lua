@@ -31,7 +31,7 @@ function journal.get_page_Id(pageIndex)
 			return id
 		end
 	end
-	minetest.log("warning","[journal] Invalid page index: "..pageIndex)
+	journal.log.warning("Invalid page index: "..pageIndex)
 end
 
 function journal.add_entry(player,pageId,entry,timestamp)

@@ -1,43 +1,11 @@
 local init = os.clock()
-if minetest.settings:get_bool("log_mods") then
-  minetest.log("action", "[MOD] "..minetest.get_current_modname()..": loading")
-else
-  print("[MOD] "..minetest.get_current_modname()..": loading")
-end
+minetest.log("action", "["..minetest.get_current_modname().."] loading...")
 
 journal = {
 	modpath = minetest.get_modpath("journal")
 }
 
-function journal.check_modname_prefix(name)
-	if name:sub(1,1) == ":" then
-		-- If the name starts with a colon, we can skip the modname prefix
-		-- mechanism.
-		return name:sub(2)
-	else
-		-- Enforce that the name starts with the correct mod name.
-		local modname = minetest.get_current_modname()
-		if modname == nil then
-			minetest.log("warning","current_modname is nil")
-			modname=name:split(":")[1]
-		end
-		local expected_prefix = modname .. ":"
-		if name:sub(1, #expected_prefix) ~= expected_prefix then
-			error("Name " .. name .. " does not follow naming conventions: " ..
-				"\"" .. expected_prefix .. "\" or \":\" prefix required")
-		end
-
-		-- Enforce that the name only contains letters, numbers and underscores.
-		local subname = name:sub(#expected_prefix+1)
-		if subname:find("[^%w_]") then
-			error("Name " .. name .. " does not follow naming conventions: " ..
-				"contains unallowed characters")
-		end
-
-		return name
-	end
-end
-
+dofile(journal.modpath.."/util.lua")
 dofile(journal.modpath.."/players.lua")
 dofile(journal.modpath.."/entries.lua")
 dofile(journal.modpath.."/triggers.lua")
@@ -86,8 +54,4 @@ end
 
 --ready
 local time_to_load= os.clock() - init
-if minetest.settings:get_bool("log_mods") then
-  minetest.log("action", string.format("[MOD] "..minetest.get_current_modname()..": loaded in %.4f s", time_to_load))
-else
-  print(string.format("[MOD] "..minetest.get_current_modname()..": loaded in %.4f s", time_to_load))
-end
+journal.log.action("loaded in %.4f s", time_to_load)
