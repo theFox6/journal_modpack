@@ -28,7 +28,7 @@ end
 if minetest.get_modpath("sfinv_buttons") ~= nil then
 	sfinv_buttons.register_button("journal", {
 		image = "default_book_written.png",
-		tooltip = "a journal to write story in",
+		tooltip = "your personal journal keeping track of what happens",
 		title = "journal",
 		action = function(player)
 			local name = player:get_player_name()
@@ -41,13 +41,14 @@ elseif minetest.get_modpath("sfinv") ~= nil then
 		get = function(_, player, context)
 			local name = player:get_player_name()
 			minetest.show_formspec(name,"journal:journal_" .. name,journal.make_formspec(name))
-			--TODO: single button specially for opening
-			return sfinv.make_formspec(player, context, "button[2.5,3;3,1;goto_category;open journal]", false)
+			return sfinv.make_formspec(player, context, "button[2.5,3;3,1;open_journal;open journal]", false)
 		end,
 		on_player_receive_fields = function(_, player, _, fields)
 			local name = player:get_player_name()
-			--TODO: only handle the button here
-			return journal.on_receive_fields(player, "journal:journal_"..name, fields)
+			if fields.open_journal then
+				minetest.show_formspec(name,"journal:journal_" .. name,journal.make_formspec(name))
+				return true
+			end
 		end
 	})
 end
