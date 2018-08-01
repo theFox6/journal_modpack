@@ -53,14 +53,17 @@ function journal.widgets.journal_formspec()
 	"background[-0.2,-0.2;10,12.5;JournalBackground.png]"
 end
 
-function journal.widgets.journal_categories(selected)
+function journal.widgets.journal_categories(player,selected)
 	local formstring = "textlist[-0.2,0.7;9.8,10.8;journal_categorylist;"
 	local first = true
-	for _,page in pairs(journal.registered_pages) do
+	for pageId,page in pairs(journal.registered_pages) do
 		if first then
 			first = false
 		else
 			formstring = formstring .. ","
+		end
+		if journal.players[player].unread[pageId] then
+			formstring = formstring .. "#ffff00"
 		end
 		formstring = formstring .. minetest.formspec_escape(page.name)
 	end
@@ -78,7 +81,7 @@ function journal.make_formspec(player,pageId)
 	end
 	local formspec = journal.widgets.journal_formspec()
 	if pageId==nil then
-		formspec = formspec .. journal.widgets.journal_tabs(1) .. journal.widgets.journal_categories(pageId)
+		formspec = formspec .. journal.widgets.journal_tabs(1) .. journal.widgets.journal_categories(player,pageId)
 		journal.players[player].reading = false
 	else
 		formspec = formspec .. journal.widgets.journal_tabs(2)
@@ -91,10 +94,12 @@ function journal.make_formspec(player,pageId)
 			end
 		end
 		formspec = formspec .. journal.widgets.text(-0.2,0.7,9.8,10.8, "entry", journal.entries[player][pageId])
-		--TODO: detect not readed entrys
+		journal.players[player].unread[pageId] = false
 		if journal.players[player].message~=false then
-			minetest.get_player_by_name(player):hud_remove(journal.players[player].message)
-			journal.players[player].message=false
+			if not journal.player_has_unread(player) then
+				minetest.get_player_by_name(player):hud_remove(journal.players[player].message)
+				journal.players[player].message=false
+			end
 		end
 
 		if pageId=="journal:personal_notes" then

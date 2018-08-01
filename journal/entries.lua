@@ -74,6 +74,7 @@ function journal.add_entry(player,pageId,entry,timestamp)
 		minetest.show_formspec(player,"journal:journal_" .. player,journal.make_formspec(player,page))
 	else
 		--show entry notification to player
+		journal.players[player].unread[page] = true
 		if journal.players[player].message==false then
 			journal.players[player].message = minetest.get_player_by_name(player):hud_add({
 				hud_elem_type = "image",

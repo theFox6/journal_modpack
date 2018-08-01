@@ -18,7 +18,7 @@ function journal.check_modname_prefix(name)
 		-- Enforce that the name starts with the correct mod name.
 		local modname = minetest.get_current_modname()
 		if modname == nil then
-			journal.log.warning("current_modname is nil")
+			--journal.log.info("current_modname is nil")
 			modname=name:split(":")[1]
 		end
 		local expected_prefix = modname .. ":"

@@ -28,7 +28,13 @@ minetest.register_on_joinplayer(function(player)
 	local playerName = player:get_player_name()
 
 	if journal.players[playerName] == nil then
-		journal.players[playerName] = {data={}}
+		journal.players[playerName] = {}
+	end
+	if journal.players[playerName].data == nil then
+		journal.players[playerName].data = {}
+	end
+	if journal.players[playerName].unread == nil then
+		journal.players[playerName].unread = {}
 	end
 	journal.players[playerName].joined=true
 	journal.players[playerName].message=false
@@ -39,3 +45,12 @@ minetest.register_on_leaveplayer(function(player)
 	local playerName = player:get_player_name()
 	journal.players[playerName].joined=false
 end)
+
+function journal.player_has_unread(playerName)
+	for _,v in pairs(journal.players[playerName].unread) do
+		if v == true then
+			return true
+		end
+	end
+	return false
+end
