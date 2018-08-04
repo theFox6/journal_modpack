@@ -143,8 +143,8 @@ function triggers.run_callbacks(trigger, data)
 			if entry.target == false then
 				entry.call(data)
 			else
-				for _,v in pairs(data.target) do
-					if entry.target == v then
+				for _,v in pairs(entry.target) do
+					if data.target == v then
 						entry.call(data)
 					end
 				end

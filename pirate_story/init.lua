@@ -68,7 +68,7 @@ journal.triggers.register_on_craft({
 })
 
 journal.triggers.register_on_dig({
-	target = {"default:stone_with_gold", "default:stone_with_diamond"}
+	target = {"default:stone_with_gold", "default:stone_with_diamond"},
 	is_active = function(player)
 		return (not journal.playerdata_getKey(player,"pirate_story:foundTreasure")) and
 			journal.playerdata_getKey(player,"pirate_story:craftedChest")
@@ -76,8 +76,8 @@ journal.triggers.register_on_dig({
 	call = function(data)
 		journal.add_entry(data.playerName,"pirate_story:log","Oooh.., that's some shiny treasure!",true)
 		minetest.after(10,journal.add_entry,data.playerName,"pirate_story:log",
-			"Now I got something to put in me chest."
-		minetest.after(5,journal.add_entry,data.playerName,"pirate_story:log",
+			"Now I got something to put in me chest.",true)
+		minetest.after(15,journal.add_entry,data.playerName,"pirate_story:log",
 			"Ah wait,the treasure is already mine!\n"..
 			"I won't give away this treasure just to hide it somewhere!",true)
 		journal.playerdata_setKey(data.playerName,"pirate_story:foundTreasure",true)
