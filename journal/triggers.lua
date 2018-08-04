@@ -101,6 +101,8 @@ function triggers.register_trigger(name)
 			elseif def.target == false then
 				nDef.target = false
 			elseif type(def.target) == "string" then
+				nDef.target = {def.target}
+			elseif type(def.target) == "table" then
 				nDef.target = def.target
 			else
 				error("Trying to register a trigger function with target string of type:"..type(def.target))
@@ -138,8 +140,14 @@ function triggers.run_callbacks(trigger, data)
 	for _,entry in pairs(triggers.on[trigger]) do
 		local active = entry.is_active(data.playerName)
 		if active == true then
-			if entry.target == false or entry.target == data.target then
+			if entry.target == false then
 				entry.call(data)
+			else
+				for _,v in pairs(data.target) do
+					if entry.target == v then
+						entry.call(data)
+					end
+				end
 			end
 		end
 	end
