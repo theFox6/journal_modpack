@@ -86,3 +86,21 @@ function journal.add_entry(player,pageId,entry,timestamp)
 		end
 	end
 end
+
+function journal.write_personal_notes_to_book(pname)
+	local lpp = 14;
+	local new_stack = ItemStack("default:book_written")
+	local data = {
+		title = "personal notes",
+		text = journal.entries[pname]["journal:personal_notes"],
+		page = 1,
+		owner = pname,
+	} 	
+	data.text_len = #data.text
+	data.page_max = math.ceil((#data.text:gsub("[^\n]", "") + 1) / lpp)
+	
+	local data_str = minetest.serialize(data)
+	
+	new_stack:set_metadata(data_str);
+	return new_stack;
+end

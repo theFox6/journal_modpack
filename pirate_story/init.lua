@@ -23,6 +23,8 @@ journal.triggers.register_on_dig({
 	end,
 })
 
+--Episode: ship
+
 journal.triggers.register_counter("pirate_story:craftedPlanksCount","craft","default:wood",false)
 
 journal.triggers.register_on_craft({
@@ -53,6 +55,8 @@ journal.triggers.register_on_craft({
 		journal.playerdata_setKey(data.playerName,"pirate_story:craftedBoat",true)
 	end,
 })
+
+--Episode: treasure
 
 journal.triggers.register_on_craft({
 	target = "default:chest",

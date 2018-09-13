@@ -104,6 +104,7 @@ function journal.make_formspec(player,pageId)
 
 		if pageId=="journal:personal_notes" then
 			formspec = formspec ..
+				"button[7.8,9.8;2,1;book;write to book]" ..
 				"box[-0.1,10.9;8.6,0.65;#000]" ..
 				"field[0.2,11.1;8.8,1;note;;]" ..
 				"button[8.8,10.8;1,1;write;write]"
@@ -115,13 +116,27 @@ function journal.make_formspec(player,pageId)
 	return formspec
 end
 
+function journal.book_formspec(playername)
+	local formspec = "size[8,7]"
+		.. "label[2,0;write personal notes to book]"
+		.. "list[detached:journal_"..playername..";personal_notes_book;3.5,1;1,1;]"
+		.. "list[current_player;main;0,2;8,4;]"
+		.. "listring[]"
+		.. "button[3.5,6;1,1;back;back]"
+	return formspec
+end
+
 function journal.on_receive_fields(player, formname, fields)
+	if formname=="journal:book_personal_notes" then
+		local playername = player:get_player_name()
+		minetest.show_formspec(playername,"journal:journal_" .. playername,journal.make_formspec(playername))
+	end
 	if not string.find(formname,"journal:journal_") then
 		return false
 	end
 
 	local playername = player:get_player_name()
-
+	
 	--process clicks on the tab header
 	if fields.journal_header ~= nil then
 		local tab = tonumber(fields.journal_header)
@@ -161,6 +176,12 @@ function journal.on_receive_fields(player, formname, fields)
 
 	if fields.write then
 		journal.add_entry(playername,"journal:personal_notes",fields.note,true)
+		return true
+	end
+
+	if fields.book then
+		minetest.show_formspec(playername,"journal:book_personal_notes",journal.book_formspec(playername))
+		return true
 	end
 
 	if fields.quit then
