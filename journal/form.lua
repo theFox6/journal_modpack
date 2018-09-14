@@ -83,6 +83,7 @@ function journal.make_formspec(player,pageId)
 	if pageId==nil then
 		formspec = formspec .. journal.widgets.journal_tabs(1) .. journal.widgets.journal_categories(player,pageId)
 		journal.players[player].reading = false
+		formspec = formspec .. "button_exit[4,11.5;1,1;quit;exit]"
 	else
 		formspec = formspec .. journal.widgets.journal_tabs(2)
 		--formspec = formspec .. journal.widgets.text(-0.2,0.7,9.8,10.8, "entry", "no entries")
@@ -111,8 +112,8 @@ function journal.make_formspec(player,pageId)
 		end
 
 		journal.players[player].reading = pageId
+		formspec = formspec .. "button[4,11.5;1,1;show_categories;back]"
 	end
-	formspec = formspec .. "button_exit[4,11.5;1,1;quit;exit]"
 	return formspec
 end
 
@@ -135,8 +136,7 @@ function journal.on_receive_fields(player, formname, fields)
 		return false
 	end
 
-	local playername = player:get_player_name()
-	
+	local playername = player:get_player_name()	
 	--process clicks on the tab header
 	if fields.journal_header ~= nil then
 		local tab = tonumber(fields.journal_header)
@@ -150,9 +150,11 @@ function journal.on_receive_fields(player, formname, fields)
 			minetest.show_formspec(playername,"journal:journal_" .. playername,
 				journal.make_formspec(playername,journal.players[playername].category))
 			return true
+		else
+			journal.log.warning("tab not recognized: "..tab)
 		end
 	end
-
+	--process clicks on the category list
 	if fields.journal_categorylist then
 		local event = minetest.explode_textlist_event(fields["journal_categorylist"])
 		if event.type == "CHG" then
@@ -164,7 +166,7 @@ function journal.on_receive_fields(player, formname, fields)
 		end
 		return true
 	end
-
+	--process going to a category
 	if fields.goto_category then
 		if journal.players[playername].category == nil then
 			journal.players[playername].category = journal.get_page_Id(1)
@@ -173,17 +175,23 @@ function journal.on_receive_fields(player, formname, fields)
 			journal.make_formspec(playername,journal.players[playername].category))
 		return true
 	end
-
+	--process writing personal notes
 	if fields.write then
 		journal.add_entry(playername,"journal:personal_notes",fields.note,true)
 		return true
 	end
-
+	--process opening the form for writing personal notes to a book
 	if fields.book then
 		minetest.show_formspec(playername,"journal:book_personal_notes",journal.book_formspec(playername))
 		return true
 	end
-
+	--process going back to the category list
+	if fields.show_categories then
+		journal.players[playername].reading = false
+		minetest.show_formspec(playername,"journal:journal_" .. playername,journal.make_formspec(playername))
+		return true
+	end
+	--process exiting the journal
 	if fields.quit then
 		journal.players[playername].reading = false
 		return true
