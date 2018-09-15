@@ -136,7 +136,7 @@ function journal.on_receive_fields(player, formname, fields)
 		return false
 	end
 
-	local playername = player:get_player_name()	
+	local playername = player:get_player_name()
 	--process clicks on the tab header
 	if fields.journal_header ~= nil then
 		local tab = tonumber(fields.journal_header)
