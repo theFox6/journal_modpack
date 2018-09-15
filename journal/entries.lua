@@ -95,12 +95,12 @@ function journal.write_personal_notes_to_book(pname)
 		text = journal.entries[pname]["journal:personal_notes"],
 		page = 1,
 		owner = pname,
-	} 	
+	}
 	data.text_len = #data.text
 	data.page_max = math.ceil((#data.text:gsub("[^\n]", "") + 1) / lpp)
-	
+
 	local data_str = minetest.serialize(data)
-	
+
 	new_stack:set_metadata(data_str);
 	return new_stack;
 end

@@ -47,8 +47,8 @@ minetest.register_on_joinplayer(function(player)
 	journal.players[playerName].reading=false
 	if not journal.players[playerName].journal_inv then
 		local inv = minetest.create_detached_inventory("journal_"..playerName, {
-			on_put = function(inv, listname, index, stack, player)
-				local pname = player:get_player_name()
+			on_put = function(inv, listname, _, stack, putter)
+				local pname = putter:get_player_name()
 				if listname == "personal_notes_book" then
 					if stack:get_name():find("default:book") then
 						inv:remove_item(listname, stack)

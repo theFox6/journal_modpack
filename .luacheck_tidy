@@ -7,5 +7,3 @@ read_globals = {
 	"sfinv_buttons", "sfinv", "unified_inventory",
 	"ItemStack"
 }
-
-ignore = {"211", "212", "213", "611", "631"}
