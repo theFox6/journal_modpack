@@ -1,7 +1,3 @@
-# example  
-
-enable/disable the example.lua by removing/adding "--" before the 'dofile(journal.modpath.."/example.lua")' in the init.lua  
-
 # entries  
 
 'journal.register_page(pageId,pageName,firstMessage)'  
@@ -90,3 +86,7 @@ the field receive function for the formspec (you probably won't need this)
 player: the userdata of the player who for example clicked a button
 formname: the name of the formspec for example: "journal:journal_sfinv"
 fields: the fields table of the widgets that have just been used  
+
+# example  
+
+see pirate_story for examples

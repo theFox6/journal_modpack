@@ -1,7 +1,10 @@
+--#number the time when the loading of this mod started
 local init = os.clock()
+--a log message displaying this mod is loading
 minetest.log("action", "["..minetest.get_current_modname().."] loading...")
 
 journal = {
+  ---#string the path to this mod folder
 	modpath = minetest.get_modpath("journal")
 }
 
@@ -11,7 +14,15 @@ dofile(journal.modpath.."/entries.lua")
 dofile(journal.modpath.."/triggers.lua")
 dofile(journal.modpath.."/form.lua")
 
--- Unified Inventory
+-- journal command
+minetest.register_chatcommand("journal", {
+	description = "opens your journal", -- full description
+	func = function(name)
+		minetest.show_formspec(name,"journal:journal_" .. name,journal.make_formspec(name))
+	end
+})
+
+-- Unified Inventory support
 if minetest.get_modpath("unified_inventory") ~= nil then
 	unified_inventory.register_button("journal", {
 		type = "image",
@@ -24,7 +35,7 @@ if minetest.get_modpath("unified_inventory") ~= nil then
 	})
 end
 
--- sfinv_buttons
+-- sfinv_buttons support
 if minetest.get_modpath("sfinv_buttons") ~= nil then
 	sfinv_buttons.register_button("journal", {
 		image = "default_book_written.png",
@@ -53,6 +64,7 @@ elseif minetest.get_modpath("sfinv") ~= nil then
 	})
 end
 
---ready
+--#number the time needed to load this mod
 local time_to_load= os.clock() - init
+--a message indicating this mod finished loading
 journal.log.action("loaded in %.4f s", time_to_load)

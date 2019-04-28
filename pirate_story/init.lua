@@ -1,5 +1,7 @@
+--register a new journal page for the pirate story
 journal.register_page("pirate_story:log","ship guide","captain's log")
 
+--write first entry when joining
 journal.triggers.register_on_join({
 	is_active = function (playerName)
 		return not journal.playerdata_getKey(playerName,"pirate_story:start")
@@ -11,6 +13,18 @@ journal.triggers.register_on_join({
 	end,
 })
 
+--entry when dying (sure... why not?)
+journal.triggers.register_on_die({
+  is_active = function(player)
+    return not journal.playerdata_getKey(player,"pirate_story:died")
+  end,
+  call = function(data)
+    journal.add_entry(data.playerName,"pirate_story:log","Today I died, arr that got me really scared it'd have been me last day."..
+    " But here I am back from heavens prolonging my buccaneer's living.", true)
+  end
+})
+
+--entry when chopping a tree
 journal.triggers.register_on_dig({
 	target = "default:tree",
 	is_active = function(playerName)
@@ -23,10 +37,15 @@ journal.triggers.register_on_dig({
 	end,
 })
 
+---
 --Episode: ship
+---
 
+--register a counter for the number of crafted planks
 journal.triggers.register_counter("pirate_story:craftedPlanksCount","craft","default:wood",false)
 
+---send message using the counter
+--it should usually be used in the is_active function tho
 journal.triggers.register_on_craft({
 	target = "default:wood",
 	is_active = function(player)
@@ -41,6 +60,7 @@ journal.triggers.register_on_craft({
 	end,
 })
 
+--entry when crafting a boat
 journal.triggers.register_on_craft({
 	target = "boats:boat",
 	is_active = function(player)
@@ -56,8 +76,11 @@ journal.triggers.register_on_craft({
 	end,
 })
 
+---
 --Episode: treasure
+---
 
+--entry when crafting a chest
 journal.triggers.register_on_craft({
 	target = "default:chest",
 	is_active = function(player)
@@ -71,6 +94,7 @@ journal.triggers.register_on_craft({
 	end,
 })
 
+--entry when digging up some treasure
 journal.triggers.register_on_dig({
 	target = {"default:stone_with_gold", "default:stone_with_diamond"},
 	is_active = function(player)

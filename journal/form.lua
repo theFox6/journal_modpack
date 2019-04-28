@@ -105,7 +105,7 @@ function journal.make_formspec(player,pageId)
 
 		if pageId=="journal:personal_notes" then
 			formspec = formspec ..
-				"button[7.8,9.8;2,1;book;write to book]" ..
+				"button[7.8,9.8;2,1;book;copy to book]" ..
 				"box[-0.1,10.9;8.6,0.65;#000]" ..
 				"field[0.2,11.1;8.8,1;note;;]" ..
 				"button[8.8,10.8;1,1;write;write]"
