@@ -19,8 +19,8 @@ journal.triggers.register_on_die({
     return not journal.playerdata_getKey(player,"pirate_story:died")
   end,
   call = function(data)
-    journal.add_entry(data.playerName,"pirate_story:log","Today I died, arr that got me really scared it'd have been me last day."..
-    " But here I am back from heavens prolonging my buccaneer's living.", true)
+    journal.add_entry(data.playerName,"pirate_story:log","Today I died, arr that got me really scared "..
+    "it'd have been me last day. But here I am back from heavens prolonging my buccaneer's living.", true)
   end
 })
 
