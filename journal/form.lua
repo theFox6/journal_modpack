@@ -108,6 +108,7 @@ function journal.make_formspec(player,pageId)
 				"button[7.8,9.8;2,1;book;copy to book]" ..
 				"box[-0.1,10.9;8.6,0.65;#000]" ..
 				"field[0.2,11.1;8.8,1;note;;]" ..
+				"field_close_on_enter[note;false]"..
 				"button[8.8,10.8;1,1;write;write]"
 		end
 
@@ -194,6 +195,11 @@ function journal.on_receive_fields(player, formname, fields)
 	--process exiting the journal
 	if fields.quit then
 		journal.players[playername].reading = false
+		return true
+	end
+	--process writing personal notes
+	if fields.note then
+		journal.add_entry(playername,"journal:personal_notes",fields.note,true)
 		return true
 	end
 end
