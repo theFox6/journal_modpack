@@ -1,3 +1,4 @@
+betterinv?
 sfinv?
 sfinv_buttons?
 unified_inventory?

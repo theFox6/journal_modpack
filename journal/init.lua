@@ -35,8 +35,24 @@ if minetest.get_modpath("unified_inventory") ~= nil then
 	})
 end
 
--- sfinv_buttons support
-if minetest.get_modpath("sfinv_buttons") ~= nil then
+-- inventory support
+if minetest.get_modpath("betterinv") ~= nil then
+	betterinv.register_tab("journal:journal", {
+		description = "journal",
+		getter = function(player, context)
+			local name = player:get_player_name()
+			minetest.show_formspec(name,"journal:journal_" .. name,journal.make_formspec(name))
+			return betterinv.generate_formspec(player, "button[1,1;3,1;open_journal;open journal]", {x = 5, y = 3}, false, false)
+		end,
+		processor = function(player, _, fields)
+			local name = player:get_player_name()
+			if fields.open_journal then
+				minetest.show_formspec(name,"journal:journal_" .. name,journal.make_formspec(name))
+				return true
+			end
+		end
+	})
+elseif minetest.get_modpath("sfinv_buttons") ~= nil then
 	sfinv_buttons.register_button("journal", {
 		image = "default_book_written.png",
 		tooltip = "your personal journal keeping track of what happens",
