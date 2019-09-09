@@ -39,7 +39,7 @@ end
 if minetest.get_modpath("betterinv") ~= nil then
 	betterinv.register_tab("journal:journal", {
 		description = "journal",
-		getter = function(player, context)
+		getter = function(player)
 			local name = player:get_player_name()
 			minetest.show_formspec(name,"journal:journal_" .. name,journal.make_formspec(name))
 			return betterinv.generate_formspec(player, "button[1,1;3,1;open_journal;open journal]", {x = 5, y = 3}, false, false)
