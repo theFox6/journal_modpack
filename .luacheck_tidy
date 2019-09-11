@@ -1,6 +1,7 @@
 allow_defined_top = true
 
 read_globals = {
+	"betterinv",
 	"minetest",
 	"dump", "vector",
 	"VoxelManip", "VoxelArea",
