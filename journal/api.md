@@ -6,13 +6,24 @@ pageId: an identifier for the page, has to follow the same conventions as itemst
 pageName: a title  
 firstMessage: a first message like "this story will start when you have found your first iron" or "captains log:" can even be ""  
 
-'journal.add_entry(player,pageId,entry,timestamp)'  
+'journal.add_entry(player,pageId,text,entryId)'  
 add an entry to the category/chapter  
 in a new line a timestamp and the entry will appear  
 player: the name of the player this entry is for  
 pageId: the id of the category/chapter  
-entry: well the entry ... like "today I found some gold" or "now I schould cut some trees to get wood"  
-timestamp: true if you want a timestamp added  
+text: well the entry ... like "today I found some gold" or "now I schould cut some trees to get wood"  
+entryId: the id used for edit_entry to edit this entry (1 is reserved to the first entry), true if you want a timestamp added to the text instead  
+
+'journal.edit_entry(player,pageId,entryId,text)'  
+add an entry to the category/chapter  
+in a new line a timestamp and the entry will appear  
+player: the name of the player this entry is for  
+pageId: the id of the category/chapter  
+entryId: the id used when creating this entry (can be a string or a number)  
+text: the new text the entry should contain  
+
+'journal.make_page(player,page)'  
+ensure the entry table of player contains page (you probably won't need this)  
 
 'journal.get_page_Id(pageIndex)'  
 get the id of the category/chapter (you probably won't need this)  
@@ -89,4 +100,4 @@ fields: the fields table of the widgets that have just been used
 
 # example  
 
-see pirate_story for examples
+see pirate_story mod for examples

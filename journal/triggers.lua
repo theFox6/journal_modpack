@@ -46,7 +46,7 @@ function triggers.register_counter(id,trigger,target,tool)
 			end
 		end,
 		get_count = function(self,playerName)
-			return self.value[playerName]
+			return self.value[playerName] or 0
 		end,
 		save = function(self)
 			triggers.count[self.id]=self.value
@@ -146,6 +146,11 @@ function triggers.run_callbacks(trigger, data)
 				for _,v in pairs(entry.target) do
 					if data.target == v then
 						entry.call(data)
+					end
+					if data.target:find("group:")==1 then
+						if minetest.get_item_group(v,data.target:sub(7))>0 then
+							entry.call(data)
+						end
 					end
 				end
 			end

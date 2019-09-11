@@ -87,14 +87,12 @@ function journal.make_formspec(player,pageId)
 	else
 		formspec = formspec .. journal.widgets.journal_tabs(2)
 		--formspec = formspec .. journal.widgets.text(-0.2,0.7,9.8,10.8, "entry", "no entries")
-		if journal.entries[player][pageId]==nil or journal.entries[player][pageId]=="" then
-			if journal.registered_pages[pageId]~=nil then
-				journal.entries[player][pageId]=journal.registered_pages[pageId].first
-			else
-				journal.entries[player][pageId]=""
-			end
+		journal.make_page(player,pageId)
+		local text = ""
+		for _,e in pairs(journal.entries[player][pageId]) do
+		  text = text .. e.text .. "\n"
 		end
-		formspec = formspec .. journal.widgets.text(-0.2,0.7,9.8,10.8, "entry", journal.entries[player][pageId])
+		formspec = formspec .. journal.widgets.text(-0.2,0.7,9.8,10.8, "entry", text)
 		journal.players[player].unread[pageId] = false
 		if journal.players[player].message~=false then
 			if not journal.player_has_unread(player) then
