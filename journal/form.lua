@@ -195,6 +195,10 @@ function journal.on_receive_fields(player, formname, fields)
 		journal.players[playername].reading = false
 		return true
 	end
+	--don't process clicking on the entry
+	if fields.entry then
+		return true
+	end
 	--process writing personal notes
 	if fields.note then
 		journal.add_entry(playername,"journal:personal_notes",fields.note,true)
