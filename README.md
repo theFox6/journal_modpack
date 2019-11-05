@@ -1,6 +1,7 @@
 # journal
-a minetest mod that adds a journal  [![Build Status](https://travis-ci.org/theFox6/journal_modpack.svg?branch=master)](https://travis-ci.org/theFox6/journal_modpack)
+![journal cover](https://raw.githubusercontent.com/theFox6/journal_modpack/master/screenshot.png)
+A minetest mod that adds a journal the player will write into.  
+[![Build Status](https://travis-ci.org/theFox6/journal_modpack.svg?branch=master)](https://travis-ci.org/theFox6/journal_modpack)
 
-It's a book that can be accessed from the inventory.  
-The journal can be used for adding story to minetest.  
-You can also write your own notes into it ingame.
+Mods can add story into the game and the player can write his own journal.  
+The journal can be accessed from the inventory and via /journal.
