@@ -1,7 +1,8 @@
-journal.triggers.register_trigger("rightclick")
+local triggers = journal.require "triggers"
+triggers.register_trigger("rightclick")
 local rightclickfuncs = {}
 
-function journal.triggers.handle_rightclick(pos, node, clicker, itemstack, pointed_thing)
+function triggers.handle_rightclick(pos, node, clicker, itemstack, pointed_thing)
 	local ret = rightclickfuncs[node.name](pos, node, clicker, itemstack, pointed_thing)
 
 	if not clicker or not pos or not node then
@@ -19,7 +20,7 @@ function journal.triggers.handle_rightclick(pos, node, clicker, itemstack, point
 		tool = clicker:get_wielded_item():get_name(),
 	}
 
-	journal.triggers.run_callbacks("rightclick", data)
+	triggers.run_callbacks("rightclick", data)
 	return ret
 end
 
@@ -30,11 +31,11 @@ minetest.after(3, function()
 		end
 	end
 	for name, _ in pairs(rightclickfuncs) do
-		minetest.override_item(name,{on_rightclick=journal.triggers.handle_rightclick})
+		minetest.override_item(name,{on_rightclick=triggers.handle_rightclick})
 	end
 end)
 
-journal.triggers.register_trigger("pickup")
+triggers.register_trigger("pickup")
 local old_punch = minetest.registered_entities["__builtin:item"].on_punch
 rawset(minetest.registered_entities["__builtin:item"], "on_punch", function(self, hitter)
 	old_punch(self, hitter)
@@ -53,6 +54,6 @@ rawset(minetest.registered_entities["__builtin:item"], "on_punch", function(self
 		--tool = hitter:get_wielded_item():get_name(),
 	}
 
-	journal.triggers.run_callbacks("pickup", data)
+	triggers.run_callbacks("pickup", data)
 	return
 end)

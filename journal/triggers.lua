@@ -1,3 +1,6 @@
+local cmp = modutil.require("check_prefix")
+local precord = journal.require("players").record
+
 local triggers = {on = {}, counters={}}
 
 triggers.count = (function()
@@ -5,10 +8,10 @@ triggers.count = (function()
 
 	minetest.register_on_shutdown(function()
 		local file = io.open(file_name, "w")
-		for _,counter in pairs(journal.triggers.counters) do
+		for _,counter in pairs(triggers.counters) do
 			counter:save()
 		end
-		file:write(minetest.serialize(journal.triggers.count))
+		file:write(minetest.serialize(triggers.count))
 		file:close()
 	end)
 
@@ -16,53 +19,79 @@ triggers.count = (function()
 	if file ~= nil then
 		local data = file:read("*a")
 		file:close()
-		return minetest.deserialize(data)
+		return minetest.deserialize(data) or {}
 	end
 	return {}
 end) ()
 
+---
+--@type counter
+--@field #string id the counters name
+--@field #string trigger the trigger should count up the counter
+--@field #string target the target data that needs to match
+--@field #string tool the tool data that needs to match
+--@field #table value the counters value seperated by player
+local counter = {}
+local counter_meta = {__index = counter}
+function counter.new(o)
+  local n
+  if type(o) == "table" then
+    n = setmetatable(o,counter_meta)
+  elseif o then
+    error(("Bad argument \"%s\" given to create a new counter."):format(o),1)
+  else
+    n = setmetatable({},counter_meta)
+  end
+  return n
+end
+
+function counter:count(data)
+  local player = data.playerName
+  local ccount = 1
+
+  if self.target then
+    --get current count
+    if data.current_count ~= nil then
+      ccount = data.current_count
+    end
+  end
+
+  if self.value[player] == nil then
+    self.value[player] = ccount
+  else
+    self.value[player] = self.value[player] + ccount
+  end
+end
+
+function counter:get_count(playerName)
+  return self.value[playerName] or 0
+end
+
+function counter:save()
+  triggers.count[self.id]=self.value
+end
+
+function counter:check(data)
+  if self.trigger ~= data.trigger and self.trigger then
+    return false
+  end
+  if self.target ~= data.target and self.target then
+    return false
+  end
+  if self.tool ~= data.tool and self.tool then
+    return false
+  end
+  return true
+end
+
 function triggers.register_counter(id,trigger,target,tool)
-	triggers.counters[journal.check_modname_prefix(id)] = {
-		id = id,
+  local cid = cmp(id)
+	triggers.counters[cid] = counter.new {
+		id = cid,
 		trigger = trigger,
 		target = target,
 		tool = tool,
 		value = triggers.count[id] or {},
-		count = function(self,data)
-			local player = data.playerName
-			local ccount = 1
-
-			if self.target~=false and self.target~=nil then
-				--get current count
-				if data.current_count ~= nil then
-					ccount = data.current_count
-				end
-			end
-
-			if self.value[player] == nil then
-				self.value[player] = ccount
-			else
-				self.value[player] = self.value[player] + ccount
-			end
-		end,
-		get_count = function(self,playerName)
-			return self.value[playerName] or 0
-		end,
-		save = function(self)
-			triggers.count[self.id]=self.value
-		end,
-		check = function(self,data)
-			if self.trigger ~= data.trigger and self.trigger then
-				return false
-			end
-			if self.target ~= data.target and self.target then
-				return false
-			end
-			if self.tool ~= data.tool and self.tool then
-				return false
-			end
-			return true
-		end,
 	}
 end
 
@@ -95,6 +124,23 @@ function triggers.register_trigger(name)
 			else
 				error("Trying to register a trigger function with is_active function of type:"..type(def.is_active))
 			end
+			-- id
+			if def.id then
+			 nDef.id = cmp(def.id)
+			end
+			-- call_once
+			if def.call_once then
+			 assert(nDef.id,"Trigger with call_once is missing an id.")
+			 nDef.call_once = true
+			end
+			-- call_after
+			if def.call_after == nil or def.call_after == false then
+			  nDef.call_after = false
+		  elseif type(def.call_after) == "string" then
+		    nDef.call_after = {def.call_after}
+	    elseif type(def.call_after) == "table" then
+	      nDef.call_after = def.call_after
+			end
 			-- target
 			if def.target == nil then
 				nDef.target = false
@@ -124,37 +170,72 @@ function triggers.register_trigger(name)
 	end
 end
 
+local function callback_for(trigger,data)
+  local pr = precord[data.playerName]
+  if trigger.call_once then
+    if pr.trig_call[trigger.id] then
+      return
+    end
+  end
+  if trigger.call_after then
+    for _,bid in pairs(trigger.call_after) do
+      if not pr.trig_call[bid] then
+        return
+      end
+    end
+  end
+  if trigger.target then
+    local found = false
+    for _,v in pairs(trigger.target) do
+      if data.target == v then
+        found = true
+        break
+      end
+      if data.target:find("group:")==1 then
+        if minetest.get_item_group(v,data.target:sub(7))>0 then
+          found = true
+          break
+        end
+      end
+    end
+    if not found then return end
+  end
+  if trigger.tool then
+    local found = false
+    for _,v in pairs(trigger.tool) do
+      if data.tool == v then
+        found = true
+        break
+      end
+      if data.tool:find("group:")==1 then
+        if minetest.get_item_group(v,data.tool:sub(7))>0 then
+          found = true
+          break
+        end
+      end
+    end
+    if not found then return end
+  end
+  if not trigger.is_active(data.playerName) then return end
+  pr.trig_call[trigger.id] = true
+  trigger.call(data)
+end
+
 function triggers.run_callbacks(trigger, data)
+  if trigger == nil then
+    error("didn't get a trigger")
+  end
 	if data.playerName == nil then
 		error("didn't get a playerName")
 	end
-	if trigger == nil then
-		error("didn't get a trigger")
-	end
 	data.trigger = trigger
-	for _,counter in pairs(triggers.counters) do
-		if counter:check(data) then
-			counter:count(data)
+	for _,ct in pairs(triggers.counters) do
+		if ct:check(data) then
+			ct:count(data)
 		end
 	end
 	for _,entry in pairs(triggers.on[trigger]) do
-		local active = entry.is_active(data.playerName)
-		if active == true then
-			if entry.target == false then
-				entry.call(data)
-			else
-				for _,v in pairs(entry.target) do
-					if data.target == v then
-						entry.call(data)
-					end
-					if data.target:find("group:")==1 then
-						if minetest.get_item_group(v,data.target:sub(7))>0 then
-							entry.call(data)
-						end
-					end
-				end
-			end
-		end
+	  callback_for(entry,data)
 	end
 end
 
@@ -289,13 +370,14 @@ minetest.register_on_chat_message(function(name, message)
 
 	local data = {
 		playerName = name,
+		target = message
 	}
 
 	local idx = string.find(message,"/")
 	if idx ~= nil and idx <= 1 then
-		data.target="command"
+		data.tool="command"
 	else
-		data.target="message"
+		data.tool="message"
 	end
 
 	triggers.run_callbacks("chat", data)
@@ -341,5 +423,8 @@ minetest.register_on_punchplayer(function(_,puncher) --victim,puncher,dtime,punc
 	triggers.run_callbacks("punchplayer", data)
 end)
 
--- write to journal
+triggers.counter = counter
+
 journal.triggers = triggers
+
+return triggers

@@ -12,10 +12,10 @@ env:
 matrix:
   exclude:
   - name: "health check"
-    env: CONFIG=.luacheckrc
+    env: CONFIG=.luacheck_health
   allow_failures:
   - name: "beauty check"
-    env: CONFIG=.luacheck_tidy
+    env: CONFIG=.luacheckrc
 script: 
 - $HOME/.luarocks/bin/luacheck --config $CONFIG .
 notifications:

@@ -1,3 +1,5 @@
+Do you want to add story to your game?  
+Make your protagonist write notes into his Journal.  
 # journal
 ![journal cover](https://raw.githubusercontent.com/theFox6/journal_modpack/master/screenshot.png)
 A minetest mod that adds a journal the player will write into.  

@@ -1,16 +1,16 @@
-allow_defined_top = true
+globals = {"journal","modutil"}
 
 read_globals = {
-	"betterinv",
 	"dump",
 	"minetest",
 	"vector",
 	"VoxelManip",
 	"VoxelArea",
-	"sfinv_buttons",
-	"sfinv",
-	"unified_inventory",
 	"ItemStack",
+}
+
+files["journal/init.lua"].read_globals = {
+	"betterinv", "sfinv_buttons", "sfinv", "unified_inventory"
 }
 
 ignore = {

@@ -1,4 +1,10 @@
-journal.widgets={}
+local log = journal.require "log"
+local players = journal.require "players"
+local entries = journal.require("entries")
+
+local forms = {
+  widgets = {}
+}
 
 -- Maximum characters per line in the text widget
 local TEXT_LINELENGTH = 80
@@ -29,7 +35,7 @@ local text_for_textlist = function(text, linelength)
 	return text
 end
 
-journal.widgets.text = function(x, y, width, height, widget_id, data)
+forms.widgets.text = function(x, y, width, height, widget_id, data)
 	local baselength = TEXT_LINELENGTH
 	local widget_basewidth = 10
 	local linelength = math.max(20, math.floor(baselength * (width / widget_basewidth)))
@@ -43,26 +49,26 @@ journal.widgets.text = function(x, y, width, height, widget_id, data)
 	return formstring
 end
 
-function journal.widgets.journal_tabs(active)
+function forms.widgets.journal_tabs(active)
 	if active == nil then active = "1" else active = tostring(active) end
 	return "tabheader[0,1;journal_header;Category list,Entry;"..active..";true;true]"
 end
 
-function journal.widgets.journal_formspec()
+function forms.widgets.journal_formspec()
 	return "size[9.6,11.9]"..
 	"background[-0.2,-0.2;10,12.5;JournalBackground.png]"
 end
 
-function journal.widgets.journal_categories(player,selected)
+function forms.widgets.journal_categories(player,selected)
 	local formstring = "textlist[-0.2,0.7;9.8,10.8;journal_categorylist;"
 	local first = true
-	for pageId,page in pairs(journal.registered_pages) do
+	for pageId,page in pairs(entries.registered_pages) do
 		if first then
 			first = false
 		else
 			formstring = formstring .. ","
 		end
-		if journal.players[player].unread[pageId] then
+		if players.record[player].unread[pageId] then
 			formstring = formstring .. "#ffff00"
 		end
 		formstring = formstring .. minetest.formspec_escape(page.name)
@@ -75,29 +81,29 @@ function journal.widgets.journal_categories(player,selected)
 	return formstring
 end
 
-function journal.make_formspec(player,pageId)
-	if journal.entries[player]==nil then
-		journal.entries[player]={}
+function forms.make_formspec(player,pageId)
+	if entries.list[player]==nil then
+		entries.list[player]={}
 	end
-	local formspec = journal.widgets.journal_formspec()
+	local formspec = forms.widgets.journal_formspec()
 	if pageId==nil then
-		formspec = formspec .. journal.widgets.journal_tabs(1) .. journal.widgets.journal_categories(player,pageId)
-		journal.players[player].reading = false
+		formspec = formspec .. forms.widgets.journal_tabs(1) .. forms.widgets.journal_categories(player,pageId)
+		players.record[player].reading = false
 		formspec = formspec .. "button_exit[4,11.5;1,1;quit;exit]"
 	else
-		formspec = formspec .. journal.widgets.journal_tabs(2)
-		--formspec = formspec .. journal.widgets.text(-0.2,0.7,9.8,10.8, "entry", "no entries")
-		journal.make_page(player,pageId)
+		formspec = formspec .. forms.widgets.journal_tabs(2)
+		--formspec = formspec .. forms.widgets.text(-0.2,0.7,9.8,10.8, "entry", "no entries")
+		entries.make_page(player,pageId)
 		local text = ""
-		for _,e in pairs(journal.entries[player][pageId]) do
+		for _,e in pairs(entries.list[player][pageId]) do
 		  text = text .. e.text .. "\n"
 		end
-		formspec = formspec .. journal.widgets.text(-0.2,0.7,9.8,10.8, "entry", text)
-		journal.players[player].unread[pageId] = false
-		if journal.players[player].message~=false then
-			if not journal.player_has_unread(player) then
-				minetest.get_player_by_name(player):hud_remove(journal.players[player].message)
-				journal.players[player].message=false
+		formspec = formspec .. forms.widgets.text(-0.2,0.7,9.8,10.8, "entry", text)
+		players.record[player].unread[pageId] = false
+		if players.record[player].message~=false then
+			if not players.has_unread(player) then
+				minetest.get_player_by_name(player):hud_remove(players.record[player].message)
+				players.record[player].message=false
 			end
 		end
 
@@ -110,13 +116,13 @@ function journal.make_formspec(player,pageId)
 				"button[8.8,10.8;1,1;write;write]"
 		end
 
-		journal.players[player].reading = pageId
+		players.record[player].reading = pageId
 		formspec = formspec .. "button[4,11.5;1,1;show_categories;back]"
 	end
 	return formspec
 end
 
-function journal.book_formspec(playername)
+function forms.book_formspec(playername)
 	local formspec = "size[8,7]"
 		.. "label[2,0;write personal notes to book]"
 		.. "list[detached:journal_"..playername..";personal_notes_book;3.5,1;1,1;]"
@@ -126,10 +132,10 @@ function journal.book_formspec(playername)
 	return formspec
 end
 
-function journal.on_receive_fields(player, formname, fields)
+function forms.on_receive_fields(player, formname, fields)
 	if formname=="journal:book_personal_notes" then
 		local playername = player:get_player_name()
-		minetest.show_formspec(playername,"journal:journal_" .. playername,journal.make_formspec(playername))
+		minetest.show_formspec(playername,"journal:journal_" .. playername,forms.make_formspec(playername))
 	end
 	if not string.find(formname,"journal:journal_") then
 		return false
@@ -140,59 +146,59 @@ function journal.on_receive_fields(player, formname, fields)
 	if fields.journal_header ~= nil then
 		local tab = tonumber(fields.journal_header)
 		if(tab==1) then
-			minetest.show_formspec(playername,"journal:journal_" .. playername,journal.make_formspec(playername))
+			minetest.show_formspec(playername,"journal:journal_" .. playername,forms.make_formspec(playername))
 			return true
 		elseif(tab==2) then
-			if journal.players[playername].category == nil then
-				journal.players[playername].category = journal.get_page_Id(1)
+			if players.record[playername].category == nil then
+				players.record[playername].category = entries.get_page_Id(1)
 			end
 			minetest.show_formspec(playername,"journal:journal_" .. playername,
-				journal.make_formspec(playername,journal.players[playername].category))
+				forms.make_formspec(playername,players.record[playername].category))
 			return true
 		else
-			journal.log.warning("tab not recognized: "..tab)
+			log.warning("tab not recognized: "..tab)
 		end
 	end
 	--process clicks on the category list
 	if fields.journal_categorylist then
 		local event = minetest.explode_textlist_event(fields["journal_categorylist"])
 		if event.type == "CHG" then
-			journal.players[playername].category = journal.get_page_Id(event.index)
+			players.record[playername].category = entries.get_page_Id(event.index)
 		elseif event.type == "DCL" then
-			journal.players[playername].category = journal.get_page_Id(event.index)
+			players.record[playername].category = entries.get_page_Id(event.index)
 			minetest.show_formspec(playername,"journal:journal_" .. playername,
-				journal.make_formspec(playername,journal.players[playername].category))
+				forms.make_formspec(playername,players.record[playername].category))
 		end
 		return true
 	end
 	--process going to a category
 	if fields.goto_category then
-		if journal.players[playername].category == nil then
-			journal.players[playername].category = journal.get_page_Id(1)
+		if players.record[playername].category == nil then
+			players.record[playername].category = entries.get_page_Id(1)
 		end
 		minetest.show_formspec(playername,"journal:journal_" .. playername,
-			journal.make_formspec(playername,journal.players[playername].category))
+			forms.make_formspec(playername,players.record[playername].category))
 		return true
 	end
 	--process writing personal notes
 	if fields.write then
-		journal.add_entry(playername,"journal:personal_notes",fields.note,true)
+		entries.add_entry(playername,"journal:personal_notes",fields.note,true)
 		return true
 	end
 	--process opening the form for writing personal notes to a book
 	if fields.book then
-		minetest.show_formspec(playername,"journal:book_personal_notes",journal.book_formspec(playername))
+		minetest.show_formspec(playername,"journal:book_personal_notes",forms.book_formspec(playername))
 		return true
 	end
 	--process going back to the category list
 	if fields.show_categories then
-		journal.players[playername].reading = false
-		minetest.show_formspec(playername,"journal:journal_" .. playername,journal.make_formspec(playername))
+		players.record[playername].reading = false
+		minetest.show_formspec(playername,"journal:journal_" .. playername,forms.make_formspec(playername))
 		return true
 	end
 	--process exiting the journal
 	if fields.quit then
-		journal.players[playername].reading = false
+		players.record[playername].reading = false
 		return true
 	end
 	--don't process clicking on the entry
@@ -201,9 +207,11 @@ function journal.on_receive_fields(player, formname, fields)
 	end
 	--process writing personal notes
 	if fields.note then
-		journal.add_entry(playername,"journal:personal_notes",fields.note,true)
+		entries.add_entry(playername,"journal:personal_notes",fields.note,true)
 		return true
 	end
 end
 
-minetest.register_on_player_receive_fields(journal.on_receive_fields)
+minetest.register_on_player_receive_fields(forms.on_receive_fields)
+
+return forms
