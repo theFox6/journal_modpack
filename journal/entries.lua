@@ -75,8 +75,8 @@ function entries.add_entry(player,pageId,text,entryId)
 		local hour = (current_time - minutes) / 60
 		local days = minetest.get_day_count()
 		--print(dump(days)..","..dump(hour)..":"..dump(minutes))
-		--entry.text = entry.text .. "day ".. days .. ", " .. hour .. ":" .. minutes
-		entry.text = ("%sday %d, %d:%d"):format(entry.text,days,hour,minutes)
+		--entry.text = "day ".. days .. ", " .. hour .. ":" .. minutes .. " " ..entry.text
+		entry.text = ("day %d, %d:%d %s"):format(days,hour,minutes,entry.text)
 	elseif entryId then
 	 entry.id = entryId
 	end
