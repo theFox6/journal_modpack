@@ -1,4 +1,4 @@
-local cmp = modutil.require("check_prefix")
+local cmp = modutil.require("check_prefix","venus")
 local precord = journal.require("players").record
 
 local triggers = {on = {}, counters={}}
