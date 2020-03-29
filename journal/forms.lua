@@ -132,6 +132,10 @@ function forms.book_formspec(playername)
 	return formspec
 end
 
+function forms.show_journal(player_name)
+  minetest.show_formspec(player_name,"journal:journal_" .. player_name,forms.make_formspec(player_name))
+end
+
 function forms.on_receive_fields(player, formname, fields)
 	if formname=="journal:book_personal_notes" then
 		local playername = player:get_player_name()
