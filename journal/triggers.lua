@@ -367,7 +367,7 @@ minetest.register_on_joinplayer(function(player)
 end)
 
 if minetest.register_on_hpchange then
-	tiggers.register_trigger("hpchange")
+	triggers.register_trigger("hpchange")
 	minetest.register_on_player_hpchange(function(player, hp_change, reason)
 		if not player then
 			return
