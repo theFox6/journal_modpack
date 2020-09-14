@@ -221,7 +221,7 @@ local function callback_for(trigger,data)
     if not found then return end
   end
   if not trigger.is_active(data.playerName) then return end
-  pr.trig_call[trigger.id] = true
+  if trigger.id then pr.trig_call[trigger.id] = true end
   trigger.call(data)
 end
 
