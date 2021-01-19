@@ -100,6 +100,10 @@ function triggers.get_count(id,playerName)
 end
 
 function triggers.register_trigger(name)
+	if triggers.on[name] then
+		-- trigger triggered by multiple mods
+		return
+	end
 	triggers.on[name] = {}
 	triggers['register_on_'..name] = function(def)
 		local nDef = {}
@@ -360,6 +364,47 @@ minetest.register_on_joinplayer(function(player)
 	}
 
 	triggers.run_callbacks("join", data)
+end)
+
+if minetest.register_on_hpchange then
+	triggers.register_trigger("hpchange")
+	minetest.register_on_player_hpchange(function(player, hp_change, reason)
+		if not player then
+			return
+		end
+
+		local name = player:get_player_name()
+		if not name or name=="" then
+			return
+		end
+
+		local data = {
+			playerName = name,
+			current_count = hp_change,
+			tool = reason.type
+		}
+
+		triggers.run_callbacks("hpchange", data)
+	end)
+end
+
+triggers.register_trigger("cheat")
+minetest.register_on_cheat(function(player, cheat)
+	if not player then
+		return
+	end
+
+	local name = player:get_player_name()
+	if not name or name=="" then
+		return
+	end
+
+	local data = {
+		playerName = name,
+		tool = cheat.type
+	}
+
+	triggers.run_callbacks("cheat", data)
 end)
 
 triggers.register_trigger("chat")

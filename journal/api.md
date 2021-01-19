@@ -63,7 +63,7 @@ import:
 deprecated but existing globals:  
 * journal.triggers
 
-registered triggers: dig, place, eat, craft, die, join, chat, punchnode, punchplayer  
+registered triggers: dig, place, eat, craft, die, join, hpchange, cheat, chat, punchnode, punchplayer  
 
 'triggers['register_on_'..name](def)'  
 for example: 'triggers.register_on_place(def)'  
