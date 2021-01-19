@@ -11,14 +11,14 @@ The journal can be accessed from the inventory and via /journal.
 
 Check out [the wiki on github](https://github.com/theFox6/journal_modpack/wiki) to learn how to use it.
 
-##Submodules
+## Submodules
 
 Currently journal only has the modutil portable submodule. It is needed to be able to run without the modutil mod.
 This means you can either download the modutil mod and enable it or get the submodule:
 
 When cloning add "--recursive" option to clone including all submodules:
 ```
-git clone --recursive https://github.com/theFox6/factory.git
+git clone --recursive https://github.com/theFox6/journal_modpack.git
 ```
 If one of the submodule folders is empty use:
 ```
